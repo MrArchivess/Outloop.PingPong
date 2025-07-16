@@ -54,4 +54,12 @@ public class BallController : MonoBehaviour
         rb.velocity = Vector3.zero;
         isServed = false;
     }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if ( collision.gameObject.tag == "Table")
+        {
+            Debug.Log("Bounced off table!");
+        }
+    }
 }
