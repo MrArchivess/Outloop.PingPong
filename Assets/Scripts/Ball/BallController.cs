@@ -2,14 +2,18 @@ using UnityEngine;
 
 public class BallController : MonoBehaviour
 {
-    private Rigidbody rb;
     [SerializeField] private float force;
     [SerializeField] private float maxVelocity = 10f;
+    
+    private Rigidbody rb;
     private bool isServed = false;
+    private Vector3 originalPosition;
+    
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        originalPosition = transform.position;
     }
 
     private void Update()
@@ -44,7 +48,7 @@ public class BallController : MonoBehaviour
 
     public void Reset()
     {
-        transform.position = Vector3.zero;
+        transform.position = originalPosition;
         transform.rotation = Quaternion.identity;
         rb.useGravity = false;
         rb.velocity = Vector3.zero;
