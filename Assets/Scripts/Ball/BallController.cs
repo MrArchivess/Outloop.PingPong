@@ -4,7 +4,9 @@ public class BallController : MonoBehaviour
 {
     [SerializeField] private float force;
     [SerializeField] private float maxVelocity = 10f;
-    
+
+    private IBounceStrategy currentBounceStrategy;
+
     private Rigidbody rb;
     private bool isServed = false;
     private Vector3 originalPosition;
@@ -59,6 +61,8 @@ public class BallController : MonoBehaviour
     {
         if ( collision.gameObject.tag == "Table")
         {
+            currentBounceStrategy = new DefaultBounceStrategy();
+            Vector3 bounceDirection = currentBounceStrategy.GetBounceDirection(collision, rb.velocity);
             Debug.Log("Bounced off table!");
         }
     }
