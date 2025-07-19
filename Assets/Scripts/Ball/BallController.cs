@@ -61,7 +61,7 @@ public class BallController : MonoBehaviour
     {
         if ( collision.gameObject.tag == "Table")
         {
-            currentBounceStrategy = new DefaultBounceStrategy();
+            currentBounceStrategy = new ChargedBounceStrategy();
             Vector3 bounceDirection = currentBounceStrategy.GetBounceDirection(collision, rb.velocity);
             Debug.Log("Bounced off table!");
         }
