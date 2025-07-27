@@ -4,15 +4,36 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] private GameObject paddlePrefab;
+    [SerializeField] private BoxCollider tableCollider;
+
+    private void Start()
     {
-        
+        SpawnPaddles();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void SpawnPaddles()
     {
-        
+        // Calculate offsets
+        Bounds bounds = tableCollider.bounds;
+        float tableSurfaceY = bounds.max.y + 0.25f;
+
+        Vector3 leftPos = new Vector3(bounds.center.x,tableSurfaceY, bounds.min.z - 0.5f);
+        Vector3 rightPos = new Vector3(bounds.center.x, tableSurfaceY, bounds.max.z + 0.5f);
+
+        GameObject leftPaddle = Instantiate(paddlePrefab, leftPos, paddlePrefab.transform.rotation);
+        GameObject rightPaddle = Instantiate(paddlePrefab, rightPos, paddlePrefab.transform.rotation * Quaternion.Euler(0, 180, 0));
+
+        PaddleController leftCtrl = leftPaddle.GetComponent<PaddleController>();
+        PaddleController rightCtrl = rightPaddle.GetComponent<PaddleController>();
+
+        leftCtrl.SetSide(PlayerSide.Left);
+        rightCtrl.SetSide(PlayerSide.Right);
+
+        leftCtrl.SetTable(tableCollider);
+        rightCtrl.SetTable(tableCollider);
+
+        InputHandler inputHandler = gameObject.AddComponent<InputHandler>();
+        inputHandler.Initialize(leftCtrl);
     }
 }

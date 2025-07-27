@@ -4,14 +4,14 @@ using UnityEngine;
 
 public class MoveCommand : ICommand
 {
-    private readonly PaddleControler _paddle;
+    private readonly PaddleController _paddle;
 
-    public MoveCommand(PaddleControler paddle)
+    public MoveCommand(PaddleController paddle)
     {
         _paddle = paddle;
     }
 
-    public void Execute(float inputValue)
+    public void Execute(Vector2 inputValue)
     {
         _paddle.SetDirection(inputValue);
     }

@@ -6,19 +6,19 @@ public class InputHandler : MonoBehaviour
 {
     private ICommand moveCommand;
 
-    private void Start()
+    public void Initialize(PaddleController paddle)
     {
-        var paddle = FindObjectOfType<PaddleControler>();
+
         moveCommand = new MoveCommand(paddle);
     }
 
     private void Update()
     {
-        // Keyboard: maps A/D or Arrow Keys, returns -1, 0, 1
-        float input = Input.GetAxis("Horizontal");
+        if (moveCommand == null) return;
 
-        // Gamepad joystick also uses "Horizontal" by default
+        Vector2 input = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
         moveCommand.Execute(input);
+
     }
     
 }

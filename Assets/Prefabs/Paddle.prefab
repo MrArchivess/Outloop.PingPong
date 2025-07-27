@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4824623895934705188}
   - component: {fileID: 1929056107127339324}
+  - component: {fileID: 754534206621165182}
   m_Layer: 0
   m_Name: Paddle
   m_TagString: Paddle
@@ -56,11 +57,26 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 1
-  m_Interpolate: 0
+  m_Interpolate: 1
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
+--- !u!114 &754534206621165182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5314055642078299294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30ffe5c733e802747850d960c71bb9fe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveSpeed: 5
+  tableCollider: {fileID: 0}
+  playerSide: 0
 --- !u!1 &5794525292500851779
 GameObject:
   m_ObjectHideFlags: 0
@@ -75,7 +91,7 @@ GameObject:
   - component: {fileID: 2478651421899141388}
   m_Layer: 0
   m_Name: Plastic
-  m_TagString: Untagged
+  m_TagString: Paddle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -153,7 +169,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5794525292500851779}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: eb2b99df1eb8389438be4aa75b66eb41, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -165,7 +181,7 @@ MeshCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 5
-  m_Convex: 0
+  m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: -7921805707226750555, guid: 4d94d7373a0cf594fb78e8bf83c24173, type: 3}
 --- !u!1 &7231282586348530818
@@ -181,7 +197,7 @@ GameObject:
   - component: {fileID: 6852351832650135865}
   m_Layer: 0
   m_Name: Wood
-  m_TagString: Untagged
+  m_TagString: Paddle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

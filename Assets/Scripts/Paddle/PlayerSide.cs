@@ -2,9 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface ICommand
+public enum PlayerSide
 {
-    void Execute(Vector2 inputValue);
-
-    void Undo();
+    Left,
+    Right
 }
