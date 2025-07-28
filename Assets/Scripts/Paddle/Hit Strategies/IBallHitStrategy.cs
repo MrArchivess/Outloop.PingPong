@@ -4,5 +4,6 @@ using UnityEngine;
 
 public interface IBallHitStrategy
 {
-    void ApplyHit(Rigidbody ballRb, Transform paddleTransform);
+    void ApplyHit(Rigidbody ballRb, Transform paddleTransform, float charge, float inputDir);
+
 }

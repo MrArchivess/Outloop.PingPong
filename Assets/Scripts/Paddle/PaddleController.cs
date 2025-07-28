@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PaddleController : MonoBehaviour
 {
-    [SerializeField] private float moveSpeed = 5f;
+    [SerializeField] private float moveSpeed = 10f;
     [SerializeField] private BoxCollider tableCollider;
     [SerializeField] private PlayerSide playerSide;
 
@@ -27,10 +27,30 @@ public class PaddleController : MonoBehaviour
         bounds = table.bounds;
     }
 
+    public void SetHitDetector()
+    {
+        HitDetector detector = FindHitDetector().AddComponent<HitDetector>();
+        detector.Initialize(playerSide);
+
+        Renderer[] glowTarget = GetComponentsInChildren<Renderer>();
+        detector.SetGlowRenderers(glowTarget);
+        
+    }
+
     public void SetDirection(Vector2 input)
     {
         inputDirection = Vector2.ClampMagnitude(input, 1f);
     }
+
+    private GameObject FindHitDetector()
+    {
+        foreach (Transform transform in transform.GetComponentInChildren<Transform>())
+        {
+            if (transform.gameObject.CompareTag("HitDetector")) return transform.gameObject;
+        }
+        return null;
+    }
+
     private void Update()
     {
         Vector3 move = new Vector3(inputDirection.x, 0, inputDirection.y);

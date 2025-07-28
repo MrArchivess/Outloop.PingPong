@@ -25,7 +25,7 @@ public class BallController : MonoBehaviour
             Serve(Vector3.up, force);
         }
 
-        if (Input.GetKeyDown(KeyCode.R))
+        if (Input.GetButtonDown("Reset"))
         {
             Reset();
         }
@@ -50,10 +50,10 @@ public class BallController : MonoBehaviour
 
     public void Reset()
     {
+        rb.velocity = Vector3.zero;
+        rb.useGravity = false;
         transform.position = originalPosition;
         transform.rotation = Quaternion.identity;
-        rb.useGravity = false;
-        rb.velocity = Vector3.zero;
         isServed = false;
     }
 

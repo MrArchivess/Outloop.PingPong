@@ -4,7 +4,7 @@ using UnityEngine;
 
 public interface ICommand
 {
-    void Execute(Vector2 inputValue);
+    void Execute(Vector2 input);
 
     void Undo();
 }

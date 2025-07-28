@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -14,7 +15,6 @@ public class GameManager : MonoBehaviour
 
     private void SpawnPaddles()
     {
-        // Calculate offsets
         Bounds bounds = tableCollider.bounds;
         float tableSurfaceY = bounds.max.y + 0.25f;
 
@@ -33,7 +33,13 @@ public class GameManager : MonoBehaviour
         leftCtrl.SetTable(tableCollider);
         rightCtrl.SetTable(tableCollider);
 
-        InputHandler inputHandler = gameObject.AddComponent<InputHandler>();
-        inputHandler.Initialize(leftCtrl);
+        leftCtrl.SetHitDetector();
+        rightCtrl.SetHitDetector();
+
+        InputHandler leftInputHandler = gameObject.AddComponent<InputHandler>();
+        leftInputHandler.Initialize(leftCtrl, 1);
+        InputHandler rightInputHandler = gameObject.AddComponent<InputHandler>();
+        rightInputHandler.Initialize(rightCtrl, 2);
+        
     }
 }
