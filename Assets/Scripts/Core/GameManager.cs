@@ -6,7 +6,9 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private GameObject paddlePrefab;
-    [SerializeField] private BoxCollider tableCollider;
+
+    [SerializeField] private GameObject boundsLeftObject;
+    [SerializeField] private GameObject boundsRightObject;
 
     private void Start()
     {
@@ -15,23 +17,24 @@ public class GameManager : MonoBehaviour
 
     private void SpawnPaddles()
     {
-        Bounds bounds = tableCollider.bounds;
-        float tableSurfaceY = bounds.max.y + 0.25f;
+        Bounds leftBounds = boundsLeftObject.GetComponent<BoxCollider>().bounds;
+        Bounds rightBounds = boundsRightObject.GetComponent<BoxCollider>().bounds;
 
-        Vector3 leftPos = new Vector3(bounds.center.x,tableSurfaceY, bounds.min.z - 0.5f);
-        Vector3 rightPos = new Vector3(bounds.center.x, tableSurfaceY, bounds.max.z + 0.5f);
+        Vector3 leftSpawn = leftBounds.center;
+        Vector3 rightSpawn = rightBounds.center;
 
-        GameObject leftPaddle = Instantiate(paddlePrefab, leftPos, paddlePrefab.transform.rotation);
-        GameObject rightPaddle = Instantiate(paddlePrefab, rightPos, paddlePrefab.transform.rotation * Quaternion.Euler(0, 180, 0));
 
-        PaddleController leftCtrl = leftPaddle.GetComponent<PaddleController>();
-        PaddleController rightCtrl = rightPaddle.GetComponent<PaddleController>();
+        GameObject leftPlayer = Instantiate(paddlePrefab, leftSpawn, paddlePrefab.transform.rotation);
+        GameObject rightPlayer = Instantiate(paddlePrefab, rightSpawn, paddlePrefab.transform.rotation * Quaternion.Euler(0, 180, 0));
+
+        PaddleController leftCtrl = leftPlayer.GetComponent<PaddleController>();
+        PaddleController rightCtrl = rightPlayer.GetComponent<PaddleController>();
+
+        leftCtrl.SetMovementBounds(leftBounds);
+        rightCtrl.SetMovementBounds(rightBounds);
 
         leftCtrl.SetSide(PlayerSide.Left);
         rightCtrl.SetSide(PlayerSide.Right);
-
-        leftCtrl.SetTable(tableCollider);
-        rightCtrl.SetTable(tableCollider);
 
         leftCtrl.SetHitDetector();
         rightCtrl.SetHitDetector();
@@ -40,6 +43,6 @@ public class GameManager : MonoBehaviour
         leftInputHandler.Initialize(leftCtrl, 1);
         InputHandler rightInputHandler = gameObject.AddComponent<InputHandler>();
         rightInputHandler.Initialize(rightCtrl, 2);
-        
+
     }
 }

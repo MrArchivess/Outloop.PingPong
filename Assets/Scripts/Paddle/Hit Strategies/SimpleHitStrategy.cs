@@ -5,7 +5,7 @@ using UnityEngine;
 public class SimpleHitStrategy : MonoBehaviour, IBallHitStrategy
 {
     [SerializeField] private float hitForce = 0.012f;
-    [SerializeField] private float upwardLift = 0.24f;
+    [SerializeField] private float upwardLift = 0.48f;
 
     public void ApplyHit(Rigidbody ballRb, Transform paddleTransform, float charge, float inputDir)
     {
