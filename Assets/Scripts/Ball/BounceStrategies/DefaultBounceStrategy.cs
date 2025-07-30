@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DefaultBounceStrategy : MonoBehaviour, IBounceStrategy
+public class DefaultBounceStrategy : IBounceStrategy
 {
     public Vector3 GetBounceDirection(Collision collision, Vector3 incomingVelocity)
     {

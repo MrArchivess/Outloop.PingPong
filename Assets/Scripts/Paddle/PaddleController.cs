@@ -6,7 +6,9 @@ public class PaddleController : MonoBehaviour
 {
     [SerializeField] private float moveSpeed = 10f;
     [SerializeField] private BoxCollider tableCollider;
-    [SerializeField] private PlayerSide playerSide;
+
+    public PlayerSide Playerside => playerSide;
+    private PlayerSide playerSide;
 
     private Vector2 inputDirection = Vector2.zero;
     private Bounds movementBounds;
@@ -28,7 +30,7 @@ public class PaddleController : MonoBehaviour
 
         Renderer[] glowTarget = GetComponentsInChildren<Renderer>();
         detector.SetGlowRenderers(glowTarget);
-        
+
     }
 
     public void SetDirection(Vector2 input)
@@ -47,9 +49,9 @@ public class PaddleController : MonoBehaviour
 
     private void Update()
     {
-        Vector3 move = new Vector3(inputDirection.x, 0, inputDirection.y);
-        transform.Translate(move * moveSpeed * Time.deltaTime, Space.World);
-        ClampPosition();
+            Vector3 move = new Vector3(inputDirection.x, 0, inputDirection.y);
+            transform.Translate(move * moveSpeed * Time.deltaTime, Space.World);
+            ClampPosition();
     }
 
     void ClampPosition()

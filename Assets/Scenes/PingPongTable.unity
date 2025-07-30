@@ -348,13 +348,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.3105476, y: -0, z: -0, w: 0.9505578}
-  m_LocalPosition: {x: 0, y: 3.2100003, z: -7.4899993}
+  m_LocalRotation: {x: 0.25407413, y: -0, z: -0, w: 0.9671848}
+  m_LocalPosition: {x: 0, y: 2.9500003, z: -7.4899993}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 36.184, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 29.437, y: 0, z: 0}
 --- !u!1 &1006240527
 GameObject:
   m_ObjectHideFlags: 0
@@ -705,6 +705,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4991952133056637661, guid: 68af14890cc853640b51ca28269112c1, type: 3}
+      propertyPath: serveForce
+      value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4991952133056637661, guid: 68af14890cc853640b51ca28269112c1, type: 3}
+      propertyPath: paddles.Array.size
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 7150970186814204085, guid: 68af14890cc853640b51ca28269112c1, type: 3}
       propertyPath: m_PreviewTimeScale
       value: 1

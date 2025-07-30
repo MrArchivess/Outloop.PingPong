@@ -1,33 +1,38 @@
+using System;
 using UnityEngine;
 
 public class BallController : MonoBehaviour
 {
-    [SerializeField] private float force;
+    public static event Action OnBallReset;
+
+    [SerializeField] private float serveForce;
     [SerializeField] private float maxVelocity = 10f;
 
     private IBounceStrategy currentBounceStrategy;
 
     private Rigidbody rb;
+    public bool IsServed => isServed;
     private bool isServed = false;
-    private Vector3 originalPosition;
+
+    [SerializeField] private PaddleController[] paddles = new PaddleController[2]; 
     
 
-    private void Awake()
+    private void Start()
     {
+        paddles = GameObject.FindObjectsOfType<PaddleController>();
         rb = GetComponent<Rigidbody>();
-        originalPosition = transform.position;
     }
 
     private void Update()
     {    
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Serve(Vector3.up, force);
+            Serve();
         }
 
         if (Input.GetButtonDown("Reset"))
         {
-            Reset();
+            Reset();   
         }
     }
 
@@ -39,22 +44,34 @@ public class BallController : MonoBehaviour
         }
     }
 
-    public void Serve(Vector3 direction, float speed)
+    private void SetPaddles()
+    {
+        paddles = new PaddleController[2];
+        paddles = GameObject.FindObjectsOfType<PaddleController>();
+    }
+
+    private void Serve()
     {
         if (isServed) return;
 
         rb.useGravity = true;
-        rb.AddForce(direction * speed);
+        rb.AddForce(Vector3.up * serveForce);
         isServed = true;
     }
 
-    public void Reset()
+    private void Reset()
+    {
+        OnBallReset?.Invoke();
+    }
+
+    public void SetServePosition(Vector3 position)
     {
         rb.velocity = Vector3.zero;
         rb.useGravity = false;
-        transform.position = originalPosition;
+        transform.position = position;
         transform.rotation = Quaternion.identity;
         isServed = false;
+
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -63,7 +80,17 @@ public class BallController : MonoBehaviour
         {
             currentBounceStrategy = new DefaultBounceStrategy();
             Vector3 bounceDirection = currentBounceStrategy.GetBounceDirection(collision, rb.velocity);
-            Debug.Log("Bounced off table!");
+
         }
+    }
+
+    private void OnEnable()
+    {
+        HitDetector.OnServeStarted += Serve;
+    }
+
+    private void OnDisable()
+    {
+        HitDetector.OnServeStarted -= Serve;
     }
 }

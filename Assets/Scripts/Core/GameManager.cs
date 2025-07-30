@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -5,14 +6,32 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager Instance { get; private set; }
+
+    public static event Action OnServerChanged;
+
     [SerializeField] private GameObject paddlePrefab;
 
     [SerializeField] private GameObject boundsLeftObject;
     [SerializeField] private GameObject boundsRightObject;
 
-    private void Start()
+    public PlayerSide CurrentServer => currentServer;
+    private PlayerSide currentServer = PlayerSide.Left;
+
+    public IGameState GameState => gameState;
+    private IGameState gameState;
+
+    private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this);
+        }
+        else
+            Instance = this;
+
         SpawnPaddles();
+        gameState = new ServingState();
     }
 
     private void SpawnPaddles()
@@ -43,6 +62,51 @@ public class GameManager : MonoBehaviour
         leftInputHandler.Initialize(leftCtrl, 1);
         InputHandler rightInputHandler = gameObject.AddComponent<InputHandler>();
         rightInputHandler.Initialize(rightCtrl, 2);
+    }
 
+    private void SetServer()
+    {
+        if (currentServer == PlayerSide.Left)
+            currentServer = PlayerSide.Right;
+        else
+            currentServer = PlayerSide.Left;
+        OnServerChanged?.Invoke();
+    }
+
+    private GameObject GetCurrentServerPaddle()
+    {
+        var paddles = FindObjectsOfType<PaddleController>();
+        foreach (var paddle in paddles)
+        {
+            if (paddle.Playerside == currentServer)
+                return paddle.gameObject;
+        }
+        return null;
+    }
+
+    private void OnEnable()
+    {
+        HitDetector.OnServeCompleted += HandleServeCompleted;
+        BallController.OnBallReset += HandleRoundReset;
+    }
+
+    private void OnDisable()
+    {
+        HitDetector.OnServeCompleted -= HandleServeCompleted;
+        BallController.OnBallReset -= HandleRoundReset;
+    }
+
+    private void HandleServeCompleted()
+    {
+        gameState = new PlayingState();
+    }
+
+    private void HandleRoundReset()
+    {
+        SetServer();
+        gameState = new ServingState();
+
+        var ball = FindObjectOfType<BallController>();
+        ball.SetServePosition(GetCurrentServerPaddle().transform.position);
     }
 }
