@@ -54,7 +54,7 @@ public class PaddleController : MonoBehaviour
             ClampPosition();
     }
 
-    void ClampPosition()
+    private void ClampPosition()
     {
         Vector3 clamped = transform.position;
 
