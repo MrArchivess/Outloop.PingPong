@@ -15,6 +15,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject boundsLeftObject;
     [SerializeField] private GameObject boundsRightObject;
 
+    [SerializeField] private BallController ballController;
+
+    private PaddleController leftCtrl;
+    private PaddleController rightCtrl;
+
     public PlayerSide CurrentServer => currentServer;
     private PlayerSide currentServer = PlayerSide.Left;
 
@@ -46,8 +51,8 @@ public class GameManager : MonoBehaviour
         GameObject leftPlayer = Instantiate(paddlePrefab, leftSpawn, paddlePrefab.transform.rotation);
         GameObject rightPlayer = Instantiate(paddlePrefab, rightSpawn, paddlePrefab.transform.rotation * Quaternion.Euler(0, 180, 0));
 
-        PaddleController leftCtrl = leftPlayer.GetComponent<PaddleController>();
-        PaddleController rightCtrl = rightPlayer.GetComponent<PaddleController>();
+        leftCtrl = leftPlayer.GetComponent<PaddleController>();
+        rightCtrl = rightPlayer.GetComponent<PaddleController>();
 
         leftCtrl.SetMovementBounds(leftBounds);
         rightCtrl.SetMovementBounds(rightBounds);
@@ -75,13 +80,7 @@ public class GameManager : MonoBehaviour
 
     private GameObject GetCurrentServerPaddle()
     {
-        var paddles = FindObjectsOfType<PaddleController>();
-        foreach (var paddle in paddles)
-        {
-            if (paddle.Playerside == currentServer)
-                return paddle.gameObject;
-        }
-        return null;
+        return currentServer == PlayerSide.Left ? leftCtrl.gameObject : rightCtrl.gameObject;
     }
 
     private void OnEnable()
@@ -106,7 +105,42 @@ public class GameManager : MonoBehaviour
         SetServer();
         gameState = new ServingState();
 
-        var ball = FindObjectOfType<BallController>();
-        ball.SetServePosition(GetCurrentServerPaddle().transform.position);
+        StartCoroutine(WaitForServerPaddleThenSetPosition());
+    }
+
+    private IEnumerator WaitForServerPaddleThenSetPosition()
+    {
+        PaddleController server = null;
+
+        for (int i = 0; i < 5; i++)
+        {
+            server = GetCurrentServerPaddle()?.GetComponent<PaddleController>();
+            if (server != null)
+                break;
+
+            yield return null;
+        }
+
+        if (server == null)
+        {
+            Debug.LogWarning("Server paddle not found after retries");
+            yield break;
+        }
+
+        for (int i = 0;i < 5; i++)
+        {
+            if (ballController != null)
+                break;
+
+            yield return null;
+        }
+
+        if (ballController == null)
+        {
+            Debug.LogWarning("BallController not found during reset.");
+            yield break;
+        }
+
+        ballController.PrepareForServe(server.transform.position);
     }
 }

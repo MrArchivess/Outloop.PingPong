@@ -122,6 +122,17 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!114 &15622214 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4991952133056637661, guid: 68af14890cc853640b51ca28269112c1, type: 3}
+  m_PrefabInstance: {fileID: 6894201038646293330}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d26ad6dfb460b2a45812b309f54c7614, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &213014623
 GameObject:
   m_ObjectHideFlags: 0
@@ -169,6 +180,7 @@ MonoBehaviour:
   paddlePrefab: {fileID: 5314055642078299294, guid: 23fdee1c3dc5341448f932f20502d48c, type: 3}
   boundsLeftObject: {fileID: 1006240527}
   boundsRightObject: {fileID: 1547735767}
+  ballController: {fileID: 15622214}
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

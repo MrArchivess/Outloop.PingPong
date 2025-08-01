@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 public class BallController : MonoBehaviour
@@ -47,7 +48,7 @@ public class BallController : MonoBehaviour
     private void SetPaddles()
     {
         paddles = new PaddleController[2];
-        paddles = GameObject.FindObjectsOfType<PaddleController>();
+        paddles = FindObjectsOfType<PaddleController>();
     }
 
     private void Serve()
@@ -64,14 +65,26 @@ public class BallController : MonoBehaviour
         OnBallReset?.Invoke();
     }
 
-    public void SetServePosition(Vector3 position)
+    public void PrepareForServe(Vector3 position)
     {
+        StartCoroutine(SetServePosition(position));
+    }
+
+    private IEnumerator SetServePosition(Vector3 position)
+    {
+        Collider col = GetComponent<Collider>();
+        if (col != null) col.enabled = false;
+
+        yield return new WaitForFixedUpdate();
+
         rb.velocity = Vector3.zero;
         rb.useGravity = false;
         transform.position = position;
         transform.rotation = Quaternion.identity;
         isServed = false;
 
+        if (col != null) yield return null;
+        if (col != null) col.enabled = true;
     }
 
     private void OnCollisionEnter(Collision collision)
