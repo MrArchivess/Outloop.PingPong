@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     public static event Action OnServerChanged;
+    public static event Action<PlayerSide> PointWon;
 
     [SerializeField] private GameObject paddlePrefab;
 
@@ -83,25 +84,24 @@ public class GameManager : MonoBehaviour
         return currentServer == PlayerSide.Left ? leftCtrl.gameObject : rightCtrl.gameObject;
     }
 
-    private void OnEnable()
-    {
-        HitDetector.OnServeCompleted += HandleServeCompleted;
-        BallController.OnBallReset += HandleRoundReset;
-    }
 
-    private void OnDisable()
-    {
-        HitDetector.OnServeCompleted -= HandleServeCompleted;
-        BallController.OnBallReset -= HandleRoundReset;
-    }
 
     private void HandleServeCompleted()
     {
         gameState = new PlayingState();
     }
 
+    private IEnumerator HandleRoundOver()
+    {
+        // Invoke for ScoreUI here
+        yield return new WaitForSeconds(3f);
+        HandleRoundReset();
+    }
+
     private void HandleRoundReset()
     {
+        Debug.Log("Round Reset Started!");
+        gameState = new GameOverState();
         SetServer();
         gameState = new ServingState();
 
@@ -142,5 +142,41 @@ public class GameManager : MonoBehaviour
         }
 
         ballController.PrepareForServe(server.transform.position);
+    }
+
+    private void DeterminePointWin(PlayerSide playerWhoLastHitTheBall, bool moveIsLegal)
+    {
+        PlayerSide opponent;
+
+        if (playerWhoLastHitTheBall == PlayerSide.Left) opponent = PlayerSide.Right;
+        else opponent = PlayerSide.Left;
+
+        PlayerSide pointWinner;
+
+        if (moveIsLegal)
+        {
+            pointWinner = playerWhoLastHitTheBall;
+        }
+        else
+        {
+            pointWinner = opponent;
+        }
+        
+        PointWon?.Invoke(pointWinner);
+        StartCoroutine(HandleRoundOver());
+    }
+
+    private void OnEnable()
+    {
+        HitDetector.OnServeCompleted += HandleServeCompleted;
+        BallController.OnBallReset += HandleRoundReset;
+        BoundsEventBus.OnBallOutOfBounds += DeterminePointWin;
+    }
+
+    private void OnDisable()
+    {
+        HitDetector.OnServeCompleted -= HandleServeCompleted;
+        BallController.OnBallReset -= HandleRoundReset;
+        BoundsEventBus.OnBallOutOfBounds -= DeterminePointWin;
     }
 }

@@ -11,8 +11,18 @@ public class ScoreSystem : MonoBehaviour
 
     private void AddPoint(PlayerSide side)
     {
-        if (side == PlayerSide.Left) scoreLeft++;
-        else if (side == PlayerSide.Right) scoreRight++;
+        if (side == PlayerSide.Left)
+        {
+            Debug.Log("Point for the Left");
+            scoreLeft++; 
+        }
+            
+        else if (side == PlayerSide.Right)
+        {
+            Debug.Log("Point for the Right");
+            scoreRight++;
+        }
+        CheckWinCondition();
     }
 
     private void CheckWinCondition()
@@ -24,7 +34,17 @@ public class ScoreSystem : MonoBehaviour
         else if (scoreRight >= winCondition && (scoreRight - scoreLeft >= 2))
         {
                 Debug.Log("Right is the winner");
-            
         }
     }
+
+    private void OnEnable()
+    {
+        GameManager.PointWon += AddPoint;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.PointWon -= AddPoint;
+    }
+
 }

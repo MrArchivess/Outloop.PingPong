@@ -9,6 +9,9 @@ TagManager:
   - Paddle
   - HitDetector
   - Plastic
+  - Out
+  - Table_Left
+  - Table_Right
   layers:
   - Default
   - TransparentFX

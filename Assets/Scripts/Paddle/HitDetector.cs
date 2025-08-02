@@ -8,6 +8,7 @@ public class HitDetector : MonoBehaviour
 {
     public static event Action OnServeStarted;
     public static event Action OnServeCompleted;
+    public static event Action<PlayerSide> OnBallHit;
 
     private float chargeTime = 0f;
     private float chargeDuration = 0f;
@@ -72,7 +73,6 @@ public class HitDetector : MonoBehaviour
         {
             case (ServingState):
                 {
-                    Debug.Log("Serving State");
                     if (hitButton && GameManager.Instance.CurrentServer == playerSide)
                     {
                         if (!ballCtrl.IsServed)
@@ -160,6 +160,7 @@ public class HitDetector : MonoBehaviour
         if (!ballRb.useGravity) ballRb.useGravity = true;
 
         chargeTime = 0f;
+        OnBallHit?.Invoke(playerSide);
     }
 
     private void OnTriggerEnter(Collider other)
