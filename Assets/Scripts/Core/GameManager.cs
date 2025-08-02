@@ -93,7 +93,7 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator HandleRoundOver()
     {
-        // Invoke for ScoreUI here
+        // Invoke popup for ScoreUI here
         yield return new WaitForSeconds(3f);
         HandleRoundReset();
     }

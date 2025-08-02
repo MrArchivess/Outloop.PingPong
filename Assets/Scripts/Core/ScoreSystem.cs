@@ -1,10 +1,17 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class ScoreSystem : MonoBehaviour
 {
+    public static event Action<PlayerSide> scoreUpdated;
+    public static event Action<PlayerSide> winnerAnnounced;
+
+    public int ScoreLeft => scoreLeft;
     private int scoreLeft;
+
+    public int ScoreRight => scoreRight;
     private int scoreRight;
 
     private int winCondition = 5;
@@ -13,8 +20,8 @@ public class ScoreSystem : MonoBehaviour
     {
         if (side == PlayerSide.Left)
         {
-            Debug.Log("Point for the Left");
-            scoreLeft++; 
+            scoreLeft++;
+
         }
             
         else if (side == PlayerSide.Right)
@@ -22,19 +29,14 @@ public class ScoreSystem : MonoBehaviour
             Debug.Log("Point for the Right");
             scoreRight++;
         }
+        scoreUpdated?.Invoke(side);
         CheckWinCondition();
     }
 
     private void CheckWinCondition()
     {
-        if (scoreLeft >= winCondition && scoreLeft - scoreRight >= 2)
-        {
-                Debug.Log("Left is the winner");
-        }
-        else if (scoreRight >= winCondition && (scoreRight - scoreLeft >= 2))
-        {
-                Debug.Log("Right is the winner");
-        }
+        if (scoreLeft >= winCondition && scoreLeft - scoreRight >= 2) winnerAnnounced?.Invoke(PlayerSide.Left);
+        else if (scoreRight >= winCondition && (scoreRight - scoreLeft >= 2)) winnerAnnounced?.Invoke(PlayerSide.Right);
     }
 
     private void OnEnable()
