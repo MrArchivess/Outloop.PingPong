@@ -29,6 +29,9 @@ public class GameManager : MonoBehaviour
     public PlayerSide CurrentServer => currentServer;
     private PlayerSide currentServer = PlayerSide.Left;
 
+    private int maxServe = 2;
+    private int currentServed = 0;
+
 
     private void Awake()
     {
@@ -79,6 +82,7 @@ public class GameManager : MonoBehaviour
             currentServer = PlayerSide.Right;
         else
             currentServer = PlayerSide.Left;
+        currentServed = 0;
         OnServerChanged?.Invoke();
     }
 
@@ -105,7 +109,8 @@ public class GameManager : MonoBehaviour
     {
         Debug.Log("Round Reset Started!");
         gameState = new GameOverState();
-        SetServer();
+        currentServed++;
+        if (currentServed == maxServe) SetServer();
         gameState = new ServingState();
 
         StartCoroutine(WaitForServerPaddleThenSetPosition());
