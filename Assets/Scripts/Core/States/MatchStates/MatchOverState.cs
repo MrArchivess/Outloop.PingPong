@@ -2,17 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MatchOverState : MonoBehaviour
+public class MatchOverState : IMatchState
 {
-    // Start is called before the first frame update
-    void Start()
+    public void EnterState()
     {
-        
+        throw new System.NotImplementedException();
     }
 
-    // Update is called once per frame
-    void Update()
+    public void ExitState()
     {
-        
+        throw new System.NotImplementedException();
+    }
+
+    public void HandleState()
+    {
+        throw new System.NotImplementedException();
     }
 }

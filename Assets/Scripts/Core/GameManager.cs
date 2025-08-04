@@ -21,11 +21,14 @@ public class GameManager : MonoBehaviour
     private PaddleController leftCtrl;
     private PaddleController rightCtrl;
 
-    public PlayerSide CurrentServer => currentServer;
-    private PlayerSide currentServer = PlayerSide.Left;
+    public IMatchState MatchState => matchState;
+    private IMatchState matchState;
 
     public IGameState GameState => gameState;
     private IGameState gameState;
+    public PlayerSide CurrentServer => currentServer;
+    private PlayerSide currentServer = PlayerSide.Left;
+
 
     private void Awake()
     {
