@@ -39,14 +39,22 @@ public class ScoreSystem : MonoBehaviour
         else if (scoreRight >= winCondition && (scoreRight - scoreLeft >= 2)) WinnerAnnounced?.Invoke(PlayerSide.Right);
     }
 
+    private void ResetScore()
+    {
+        scoreLeft = 0;
+        scoreRight = 0;
+    }
+
     private void OnEnable()
     {
         GameManager.PointWon += AddPoint;
+        GameManager.OnMatchReset += ResetScore;
     }
 
     private void OnDisable()
     {
         GameManager.PointWon -= AddPoint;
+        GameManager.OnMatchReset -= ResetScore;
     }
 
 }

@@ -70,6 +70,7 @@ public class BallController : MonoBehaviour
         rb.useGravity = false;
         transform.position = position;
         transform.rotation = Quaternion.identity;
+        playerWhoLastHit = GameManager.Instance.CurrentServer;
         isMoveLegal = false;
         isServed = false;
         roundOverTriggered = false;

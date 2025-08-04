@@ -25,15 +25,26 @@ public class ScoreUIManager : MonoBehaviour
         else rightPlayerText.color = Color.red;
     }
 
+    private void ResetScoreText()
+    {
+        leftPlayerScore.text = "0";
+        leftPlayerText.color = Color.black;
+
+        rightPlayerScore.text = "0";
+        rightPlayerScore.color = Color.black;
+    }
+
     private void OnEnable()
     {
         ScoreSystem.ScoreUpdated += UpdateScore;
         ScoreSystem.WinnerAnnounced += UpdateWin;
+        GameManager.OnMatchReset += ResetScoreText;
     }
 
     private void OnDisable()
     {
         ScoreSystem.ScoreUpdated -= UpdateScore;
         ScoreSystem.WinnerAnnounced -= UpdateWin;
+        GameManager.OnMatchReset -= ResetScoreText;
     }
 }

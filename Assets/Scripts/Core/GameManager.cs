@@ -8,8 +8,9 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance { get; private set; }
 
-    public static event Action OnServerChanged;
+    public static event Action<PlayerSide> OnServerChanged;
     public static event Action<PlayerSide> PointWon;
+    public static event Action OnMatchReset;
 
     [SerializeField] private GameObject paddlePrefab;
 
@@ -56,7 +57,25 @@ public class GameManager : MonoBehaviour
 
     private void EndMatch(PlayerSide player)
     {
+        StartCoroutine(EndMatch());
+    }
+
+    private IEnumerator EndMatch()
+    {
         matchState = new MatchOverState();
+        yield return new WaitForSeconds(3f);
+        StartCoroutine(ResetMatch());
+    }
+
+    private IEnumerator ResetMatch()
+    {
+        matchState = new MatchReadyState();
+        gameState = new ServingState();
+        currentServer = PlayerSide.Left;
+        currentServed = 0;
+        OnMatchReset.Invoke();
+        yield return new WaitForSeconds(1f);
+        StartCoroutine(StartMatch());
     }
 
     private void SpawnPaddles()
@@ -96,7 +115,7 @@ public class GameManager : MonoBehaviour
         else
             currentServer = PlayerSide.Left;
         currentServed = 0;
-        OnServerChanged?.Invoke();
+        OnServerChanged?.Invoke(currentServer);
     }
 
     private GameObject GetCurrentServerPaddle()
