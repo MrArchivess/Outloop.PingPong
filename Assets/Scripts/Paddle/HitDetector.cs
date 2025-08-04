@@ -69,76 +69,77 @@ public class HitDetector : MonoBehaviour
     private void Update()
     {
         hitButton = Input.GetButtonDown(inputHit);
-        switch (GameManager.Instance.GameState)
+        if (GameManager.Instance.MatchState is MatchActiveState)
         {
-            case (ServingState):
-                {
-                    if (hitButton && GameManager.Instance.CurrentServer == playerSide)
+            switch (GameManager.Instance.GameState)
+            {
+                case (ServingState):
                     {
-                        if (!ballCtrl.IsServed)
-                            OnServeStarted?.Invoke();
-                        else
+                        if (hitButton && GameManager.Instance.CurrentServer == playerSide)
                         {
-                            MakeHit();
-                            OnServeCompleted?.Invoke();
-                        }
-                    }
-                    break;
-                }
-            case (PlayingState):
-                {
-                    if (hitButton)
-                    {
-                        if (!isCharging)
-                            isCharging = true;
-                        else
-                            isCharging = false;
-
-                        chargeTime = 0f;
-                        chargeDuration = 0f;
-                    }
-
-                    if (isCharging)
-                    {
-                        chargeTime += Time.deltaTime;
-                        float normalizedCharge = Mathf.Clamp01(chargeTime / maxCharge);
-
-                        float normalizedDuration = Mathf.Clamp01(chargeDuration / maxCharge);
-
-                        Color finalGlow = glowColor * Mathf.Lerp(maxEmission, 0f, normalizedDuration);
-                        foreach (Renderer renderer in glowRenderer)
-                        {
-                            Material[] materials = renderer.materials;
-                            foreach (Material mat in materials)
+                            if (!ballCtrl.IsServed)
+                                OnServeStarted?.Invoke();
+                            else
                             {
-                                mat.SetColor("_EmissionColor", finalGlow);
+                                MakeHit();
+                                OnServeCompleted?.Invoke();
                             }
                         }
-
-                        chargeDuration += Time.deltaTime;
-                        if (chargeTime > maxCharge)
-                            chargeTime = maxCharge;
-                        if (chargeDuration > maxDuration)
+                        break;
+                    }
+                case (PlayingState):
+                    {
+                        if (hitButton)
                         {
-                            isCharging = false;
+                            if (!isCharging)
+                                isCharging = true;
+                            else
+                                isCharging = false;
+
+                            chargeTime = 0f;
+                            chargeDuration = 0f;
+                        }
+
+                        if (isCharging)
+                        {
+                            chargeTime += Time.deltaTime;
+                            float normalizedCharge = Mathf.Clamp01(chargeTime / maxCharge);
+
+                            float normalizedDuration = Mathf.Clamp01(chargeDuration / maxCharge);
+
+                            Color finalGlow = glowColor * Mathf.Lerp(maxEmission, 0f, normalizedDuration);
                             foreach (Renderer renderer in glowRenderer)
                             {
                                 Material[] materials = renderer.materials;
                                 foreach (Material mat in materials)
                                 {
-
-                                    mat.SetColor("_EmissionColor", Color.black);
+                                    mat.SetColor("_EmissionColor", finalGlow);
                                 }
                             }
-                            chargeTime = 0;
-                            chargeDuration = 0;
+
+                            chargeDuration += Time.deltaTime;
+                            if (chargeTime > maxCharge)
+                                chargeTime = maxCharge;
+                            if (chargeDuration > maxDuration)
+                            {
+                                isCharging = false;
+                                foreach (Renderer renderer in glowRenderer)
+                                {
+                                    Material[] materials = renderer.materials;
+                                    foreach (Material mat in materials)
+                                    {
+
+                                        mat.SetColor("_EmissionColor", Color.black);
+                                    }
+                                }
+                                chargeTime = 0;
+                                chargeDuration = 0;
+                            }
                         }
+                        break;
                     }
-                    break;
-                }
+            }
         }
-
-
     }
 
     private void MakeHit()

@@ -44,6 +44,19 @@ public class GameManager : MonoBehaviour
 
         SpawnPaddles();
         gameState = new ServingState();
+        matchState = new MatchReadyState();
+        StartCoroutine(StartMatch());
+    }
+
+    private IEnumerator StartMatch()
+    {
+        yield return new WaitForSeconds(3f);
+        matchState = new MatchActiveState();
+    }
+
+    private void EndMatch(PlayerSide player)
+    {
+        matchState = new MatchOverState();
     }
 
     private void SpawnPaddles()
@@ -179,6 +192,7 @@ public class GameManager : MonoBehaviour
         HitDetector.OnServeCompleted += HandleServeCompleted;
         BallController.OnBallReset += HandleRoundReset;
         BoundsEventBus.OnBallOutOfBounds += DeterminePointWin;
+        ScoreSystem.WinnerAnnounced += EndMatch;
     }
 
     private void OnDisable()
@@ -186,5 +200,6 @@ public class GameManager : MonoBehaviour
         HitDetector.OnServeCompleted -= HandleServeCompleted;
         BallController.OnBallReset -= HandleRoundReset;
         BoundsEventBus.OnBallOutOfBounds -= DeterminePointWin;
+        ScoreSystem.WinnerAnnounced -= EndMatch;
     }
 }

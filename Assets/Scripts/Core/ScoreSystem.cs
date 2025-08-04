@@ -5,8 +5,8 @@ using UnityEngine;
 
 public class ScoreSystem : MonoBehaviour
 {
-    public static event Action<PlayerSide> scoreUpdated;
-    public static event Action<PlayerSide> winnerAnnounced;
+    public static event Action<PlayerSide> ScoreUpdated;
+    public static event Action<PlayerSide> WinnerAnnounced;
 
     public int ScoreLeft => scoreLeft;
     private int scoreLeft;
@@ -29,14 +29,14 @@ public class ScoreSystem : MonoBehaviour
             Debug.Log("Point for the Right");
             scoreRight++;
         }
-        scoreUpdated?.Invoke(side);
+        ScoreUpdated?.Invoke(side);
         CheckWinCondition();
     }
 
     private void CheckWinCondition()
     {
-        if (scoreLeft >= winCondition && scoreLeft - scoreRight >= 2) winnerAnnounced?.Invoke(PlayerSide.Left);
-        else if (scoreRight >= winCondition && (scoreRight - scoreLeft >= 2)) winnerAnnounced?.Invoke(PlayerSide.Right);
+        if (scoreLeft >= winCondition && scoreLeft - scoreRight >= 2) WinnerAnnounced?.Invoke(PlayerSide.Left);
+        else if (scoreRight >= winCondition && (scoreRight - scoreLeft >= 2)) WinnerAnnounced?.Invoke(PlayerSide.Right);
     }
 
     private void OnEnable()

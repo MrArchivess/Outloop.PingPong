@@ -27,13 +27,13 @@ public class ScoreUIManager : MonoBehaviour
 
     private void OnEnable()
     {
-        ScoreSystem.scoreUpdated += UpdateScore;
-        ScoreSystem.winnerAnnounced += UpdateWin;
+        ScoreSystem.ScoreUpdated += UpdateScore;
+        ScoreSystem.WinnerAnnounced += UpdateWin;
     }
 
     private void OnDisable()
     {
-        ScoreSystem.scoreUpdated -= UpdateScore;
-        ScoreSystem.winnerAnnounced -= UpdateWin;
+        ScoreSystem.ScoreUpdated -= UpdateScore;
+        ScoreSystem.WinnerAnnounced -= UpdateWin;
     }
 }
