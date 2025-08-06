@@ -66,9 +66,8 @@ public class HitDetector : MonoBehaviour
         ballCtrl = ball.GetComponent<BallController>();
     }
 
-    private void Update()
+    public void HandleHitButton()
     {
-        hitButton = Input.GetButtonDown(inputHit);
         if (GameManager.Instance.MatchState is MatchActiveState)
         {
             switch (GameManager.Instance.GameState)

@@ -6,7 +6,6 @@ using UnityEngine;
 
 public class BallOutOfBoundsDetector : MonoBehaviour
 {
-    public static event Action<PlayerSide, bool> ballOutOfBounds;
     
     public static event Action roundOver;
 
@@ -21,8 +20,6 @@ public class BallOutOfBoundsDetector : MonoBehaviour
 
                 BoundsEventBus.RaiseBallOutofBounds(ball.PlayerWhoLastHit, ball.IsMoveLegal);
                 BoundsEventBus.RaiseRoundOver();
-                /*                ballOutOfBounds?.Invoke(ball.PlayerWhoLastHit, ball.IsMoveLegal);
-                                roundOver?.Invoke();*/
             }
         }
     }
