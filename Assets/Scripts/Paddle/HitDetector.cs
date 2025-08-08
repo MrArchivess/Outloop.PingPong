@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class HitDetector : MonoBehaviour
 {
+    private PlayerControls playerControls;
+
     public static event Action OnServeStarted;
     public static event Action OnServeCompleted;
     public static event Action<PlayerSide> OnBallHit;
@@ -15,11 +17,7 @@ public class HitDetector : MonoBehaviour
     private float maxDuration = 1f;
     private float maxCharge = 0.5f;
     private bool isCharging;
-
-    private bool hitButton = false;
-
-    private string inputX = "";
-    private string inputHit = "";
+    private Vector2 lastInputDirection;
 
     private GameObject ball;
     private BallController ballCtrl;
@@ -33,29 +31,16 @@ public class HitDetector : MonoBehaviour
     [SerializeField] private Color glowColor = new Color(1f, 0.5f, 0);
     [SerializeField] private float maxEmission = 10f;
 
-    private PlayerSide playerSide;
+   [SerializeField] private PlayerSide playerSide;
 
     public void Initialize(PlayerSide _playerSide)
     {
         playerSide = _playerSide;
-
-        if (playerSide == PlayerSide.Left)
-        {
-            inputHit = "Hit";
-            inputX = "Horizontal";
-        }
-        else if (playerSide == PlayerSide.Right)
-        {
-            inputHit = "Hit_P2";
-            inputX = "Horizontal_P2";
-        }
     }
 
     public void SetGlowRenderers(Renderer[] glowRenderer)
     {
         this.glowRenderer = glowRenderer;
-
-
     }
 
     private void Awake()
@@ -66,6 +51,47 @@ public class HitDetector : MonoBehaviour
         ballCtrl = ball.GetComponent<BallController>();
     }
 
+    private void Update()
+    {
+        if (isCharging)
+        {
+            chargeTime += Time.deltaTime;
+            chargeDuration += Time.deltaTime;
+
+            float normalizedCharge = Mathf.Clamp01(chargeTime / maxCharge);
+            float normalizedDuration = Mathf.Clamp01(chargeDuration / maxCharge);
+
+            Color finalGlow = glowColor * Mathf.Lerp(maxEmission, 0f, normalizedDuration);
+
+            foreach (Renderer renderer in glowRenderer)
+            {
+                Material[] materials = renderer.materials;
+                foreach (Material mat in materials)
+                {
+                    mat.SetColor("_EmissionColor", finalGlow);
+                }
+            }
+
+            if (chargeTime > maxCharge)
+                chargeTime = maxCharge;
+
+            if (chargeDuration > maxDuration)
+            {
+                isCharging = false;
+                foreach (Renderer renderer in glowRenderer)
+                {
+                    Material[] materials = renderer.materials;
+                    foreach (Material mat in materials)
+                    {
+                        mat.SetColor("_EmissionColor", Color.black);
+                    }
+                }
+                chargeTime = 0;
+                chargeDuration = 0;
+            }
+        }
+    }
+
     public void HandleHitButton()
     {
         if (GameManager.Instance.MatchState is MatchActiveState)
@@ -74,7 +100,7 @@ public class HitDetector : MonoBehaviour
             {
                 case (ServingState):
                     {
-                        if (hitButton && GameManager.Instance.CurrentServer == playerSide)
+                        if (GameManager.Instance.CurrentServer == playerSide)
                         {
                             if (!ballCtrl.IsServed)
                                 OnServeStarted?.Invoke();
@@ -88,64 +114,28 @@ public class HitDetector : MonoBehaviour
                     }
                 case (PlayingState):
                     {
-                        if (hitButton)
-                        {
-                            if (!isCharging)
-                                isCharging = true;
-                            else
-                                isCharging = false;
+                        chargeTime = 0f;
+                        chargeDuration = 0f;
 
-                            chargeTime = 0f;
-                            chargeDuration = 0f;
-                        }
-
-                        if (isCharging)
-                        {
-                            chargeTime += Time.deltaTime;
-                            float normalizedCharge = Mathf.Clamp01(chargeTime / maxCharge);
-
-                            float normalizedDuration = Mathf.Clamp01(chargeDuration / maxCharge);
-
-                            Color finalGlow = glowColor * Mathf.Lerp(maxEmission, 0f, normalizedDuration);
-                            foreach (Renderer renderer in glowRenderer)
-                            {
-                                Material[] materials = renderer.materials;
-                                foreach (Material mat in materials)
-                                {
-                                    mat.SetColor("_EmissionColor", finalGlow);
-                                }
-                            }
-
-                            chargeDuration += Time.deltaTime;
-                            if (chargeTime > maxCharge)
-                                chargeTime = maxCharge;
-                            if (chargeDuration > maxDuration)
-                            {
-                                isCharging = false;
-                                foreach (Renderer renderer in glowRenderer)
-                                {
-                                    Material[] materials = renderer.materials;
-                                    foreach (Material mat in materials)
-                                    {
-
-                                        mat.SetColor("_EmissionColor", Color.black);
-                                    }
-                                }
-                                chargeTime = 0;
-                                chargeDuration = 0;
-                            }
-                        }
+                        if (!isCharging) isCharging = true;
+                        else isCharging = false;
                         break;
                     }
             }
         }
     }
 
+    public void SetDirection(Vector2 direction)
+    {
+        lastInputDirection = direction;
+    }
+
     private void MakeHit()
     {
         isCharging = false;
         float normalizedCharge = Mathf.Clamp01(chargeTime / maxCharge);
-        float inputDirection = Input.GetAxis(inputX);
+
+        float inputDirection = lastInputDirection.x;
 
         hitStrategy.ApplyHit(ballRb, gameObject.GetComponent<Transform>(), normalizedCharge, inputDirection);
         foreach (Renderer renderer in glowRenderer)
@@ -173,5 +163,4 @@ public class HitDetector : MonoBehaviour
             }
         }
     }
-
 }

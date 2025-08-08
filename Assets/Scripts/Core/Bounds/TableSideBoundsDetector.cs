@@ -7,9 +7,6 @@ public class TableSideBoundsDetector : MonoBehaviour
 {
     [SerializeField] private PlayerSide tableSide;
 
-    public static event Action<PlayerSide, bool> ballOutOfBounds;
-    public static event Action roundOver;
-
     public static event Action legalMoveMade;
 
     private void Awake()

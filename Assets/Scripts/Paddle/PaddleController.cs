@@ -8,7 +8,7 @@ public class PaddleController : MonoBehaviour
     [SerializeField] private BoxCollider tableCollider;
 
     public PlayerSide Playerside => playerSide;
-    private PlayerSide playerSide;
+    [SerializeField] private PlayerSide playerSide;
 
     private Vector2 inputDirection = Vector2.zero;
     private Bounds movementBounds;
@@ -48,9 +48,9 @@ public class PaddleController : MonoBehaviour
     }
 
     private void Update()
-    {
+    { 
             Vector3 move = new Vector3(inputDirection.x, 0, inputDirection.y);
-            transform.Translate(move * moveSpeed * Time.deltaTime, Space.World);
+        if (GameManager.Instance.MatchState is MatchActiveState) transform.Translate(move * moveSpeed * Time.deltaTime, Space.World);
             ClampPosition();
     }
 

@@ -7,12 +7,12 @@
             "actions": [
                 {
                     "name": "Move",
-                    "type": "Button",
+                    "type": "Value",
                     "id": "3292bc9c-d241-4ad2-9594-e44e3e3dcae2",
-                    "expectedControlType": "Button",
-                    "processors": "",
+                    "expectedControlType": "Vector2",
+                    "processors": "NormalizeVector2",
                     "interactions": "",
-                    "initialStateCheck": false
+                    "initialStateCheck": true
                 },
                 {
                     "name": "Hit",
@@ -27,33 +27,22 @@
             "bindings": [
                 {
                     "name": "",
-                    "id": "5032ef1a-35f8-4459-a023-9805982137fd",
-                    "path": "<Joystick>/stick/down",
-                    "interactions": "Hold",
+                    "id": "be8ee5de-6025-4a26-8a82-fdfe31fb00d8",
+                    "path": "<Gamepad>/leftStick",
+                    "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "GamepadScheme",
                     "action": "Move",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "9a67a2c2-b847-461d-be59-0d08321e1fd8",
+                    "id": "186a6ceb-b1fc-43a0-b861-4d6ad08725d8",
                     "path": "<Gamepad>/buttonSouth",
-                    "interactions": "Press",
+                    "interactions": "",
                     "processors": "",
-                    "groups": "",
-                    "action": "Hit",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "5b41e282-a448-4ba3-8701-a86b9c295a7e",
-                    "path": "<Keyboard>/space",
-                    "interactions": "Press",
-                    "processors": "",
-                    "groups": "",
+                    "groups": "GamepadScheme",
                     "action": "Hit",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -61,5 +50,22 @@
             ]
         }
     ],
-    "controlSchemes": []
+    "controlSchemes": [
+        {
+            "name": "GamepadScheme",
+            "bindingGroup": "GamepadScheme",
+            "devices": [
+                {
+                    "devicePath": "<Gamepad>",
+                    "isOptional": false,
+                    "isOR": false
+                },
+                {
+                    "devicePath": "<Keyboard>",
+                    "isOptional": true,
+                    "isOR": false
+                }
+            ]
+        }
+    ]
 }

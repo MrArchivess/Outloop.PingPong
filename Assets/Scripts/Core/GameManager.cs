@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class GameManager : MonoBehaviour
 {
@@ -11,6 +12,7 @@ public class GameManager : MonoBehaviour
     public static event Action<PlayerSide> OnServerChanged;
     public static event Action<PlayerSide> PointWon;
     public static event Action OnMatchReset;
+    public static event Action OnPlayerConnected;
 
     [SerializeField] private GameObject paddlePrefab;
 
@@ -18,6 +20,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject boundsRightObject;
 
     [SerializeField] private BallController ballController;
+
+    [SerializeField] private PlayerControls playerControls;
 
     private PaddleController leftCtrl;
     private PaddleController rightCtrl;
@@ -28,11 +32,19 @@ public class GameManager : MonoBehaviour
     public IGameState GameState => gameState;
     private IGameState gameState;
     public PlayerSide CurrentServer => currentServer;
-    private PlayerSide currentServer = PlayerSide.Left;
+    [SerializeField]private PlayerSide currentServer = PlayerSide.Left;
 
     private int maxServe = 2;
     private int currentServed = 0;
 
+
+    public void RegisterPaddle(PlayerSide side, PaddleController controller)
+    {
+        if (side == PlayerSide.Left)
+            leftCtrl = controller;
+        else if (side == PlayerSide.Right)
+            rightCtrl = controller;
+    }
 
     private void Awake()
     {
@@ -43,10 +55,43 @@ public class GameManager : MonoBehaviour
         else
             Instance = this;
 
-        SpawnPaddles();
         gameState = new ServingState();
         matchState = new MatchReadyState();
+     
         StartCoroutine(StartMatch());
+    }
+
+    private void Start()
+    {
+        StartCoroutine(RegisterPlayerJoinHandler());
+    }
+
+    private IEnumerator RegisterPlayerJoinHandler()
+    {
+        while (PlayerInputManager.instance == null)
+            yield return null;
+
+        PlayerInputManager.instance.onPlayerJoined += OnPlayerJoined;
+    }
+
+    private void OnPlayerJoined(PlayerInput input)
+    {
+        StartCoroutine(InitPlayerNextFrame(input));
+        Debug.Log($" Player joined: index={input.playerIndex}, device(s): {string.Join(", ", input.devices)}");
+    }
+
+    private IEnumerator InitPlayerNextFrame(PlayerInput input)
+    {
+        yield return null;
+        var initializer = input.GetComponent<PlayerInitializer>();
+
+        if (input.playerIndex == 0)
+            initializer.InitializePlayer(PlayerSide.Left, boundsLeftObject.GetComponent<BoxCollider>().bounds);
+        else
+            initializer.InitializePlayer(PlayerSide.Right, boundsRightObject.GetComponent<BoxCollider>().bounds);
+
+        initializer.SetBounds(boundsLeftObject.transform, boundsRightObject.transform);
+        OnPlayerConnected.Invoke();
     }
 
     private IEnumerator StartMatch()
@@ -78,36 +123,6 @@ public class GameManager : MonoBehaviour
         StartCoroutine(StartMatch());
     }
 
-    private void SpawnPaddles()
-    {
-        Bounds leftBounds = boundsLeftObject.GetComponent<BoxCollider>().bounds;
-        Bounds rightBounds = boundsRightObject.GetComponent<BoxCollider>().bounds;
-
-        Vector3 leftSpawn = leftBounds.center;
-        Vector3 rightSpawn = rightBounds.center;
-
-
-        GameObject leftPlayer = Instantiate(paddlePrefab, leftSpawn, paddlePrefab.transform.rotation);
-        GameObject rightPlayer = Instantiate(paddlePrefab, rightSpawn, paddlePrefab.transform.rotation * Quaternion.Euler(0, 180, 0));
-
-        leftCtrl = leftPlayer.GetComponent<PaddleController>();
-        rightCtrl = rightPlayer.GetComponent<PaddleController>();
-
-        leftCtrl.SetMovementBounds(leftBounds);
-        rightCtrl.SetMovementBounds(rightBounds);
-
-        leftCtrl.SetSide(PlayerSide.Left);
-        rightCtrl.SetSide(PlayerSide.Right);
-
-        leftCtrl.SetHitDetector();
-        rightCtrl.SetHitDetector();
-
-        InputHandler leftInputHandler = gameObject.AddComponent<InputHandler>();
-        leftInputHandler.Initialize(leftCtrl, 1);
-        InputHandler rightInputHandler = gameObject.AddComponent<InputHandler>();
-        rightInputHandler.Initialize(rightCtrl, 2);
-    }
-
     private void SetServer()
     {
         if (currentServer == PlayerSide.Left)
@@ -122,8 +137,6 @@ public class GameManager : MonoBehaviour
     {
         return currentServer == PlayerSide.Left ? leftCtrl.gameObject : rightCtrl.gameObject;
     }
-
-
 
     private void HandleServeCompleted()
     {

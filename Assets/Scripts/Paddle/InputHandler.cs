@@ -1,58 +1,50 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class InputHandler : MonoBehaviour
 {
-    private PlayerControls controls;
+    
+    [SerializeField] private PaddleController paddleController;
+    [SerializeField] private HitDetector hitDetector;
+    [SerializeField] private PlayerInput playerInput;
 
     private ICommand moveCommand;
-    [SerializeField] public int playerIndex;
 
-    public void Initialize(PaddleController paddle, int index)
+
+    private void Awake()
     {
-
-        moveCommand = new MoveCommand(paddle);
-        playerIndex = index;
+        playerInput = GetComponent<PlayerInput>();
     }
 
-    private void Update()
+    private void Start()
     {
-        if (moveCommand == null) return;
-
-        Vector2 input = GetPlayerInput(playerIndex);
-        moveCommand.Execute(input);
+        paddleController = gameObject.GetComponentInChildren<PaddleController>();
+        moveCommand = new MoveCommand(paddleController);
     }
 
-    private void OnEnable()
+
+    public void SetInputs()
     {
-        PaddleController paddleController = gameObject.GetComponentInChildren<PaddleController>();
-        HitDetector hitDetector = gameObject.GetComponentInChildren<HitDetector>();
-
-        controls.Player.Enable();
-        controls.Player.Hit.performed += ctx => hitDetector.HandleHitButton();
-        controls.Player.Move.performed += ctx => paddleController.SetDirection(ctx.ReadValue<Vector2>());
-        controls.Player.Move.canceled += ctx => paddleController.SetDirection(Vector2.zero);
-
-    }
-
-    private void OnDisable()
-    {
-        controls.Player.Disable();
-    }
-
-    private Vector2 GetPlayerInput(int index)
-    {
-        if (playerIndex == 1)
+        hitDetector = gameObject.GetComponentInChildren<HitDetector>();
+        playerInput.actions["Move"].performed += ctx =>
         {
-            return new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
-        }
-        else if (playerIndex == 2)
+            Vector2 dir = ctx.ReadValue<Vector2>();
+            moveCommand.Execute(dir);
+            hitDetector.SetDirection(dir);
+        };
+        playerInput.actions["Move"].canceled += ctx =>
         {
-            return new Vector2(Input.GetAxis("Horizontal_P2"), Input.GetAxis("Vertical_P2"));
-        }
+            moveCommand.Execute(Vector2.zero);
+            hitDetector.SetDirection(Vector2.zero);
+        };
 
-        return Vector2.zero;
+        playerInput.actions["Hit"].performed += ctx =>
+        {
+            hitDetector.HandleHitButton();
+        };
     }
-    
+
+
 }

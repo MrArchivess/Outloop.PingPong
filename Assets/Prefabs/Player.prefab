@@ -97,6 +97,9 @@ GameObject:
   - component: {fileID: 4824623895934705188}
   - component: {fileID: 1929056107127339324}
   - component: {fileID: 754534206621165182}
+  - component: {fileID: 5838564671337458639}
+  - component: {fileID: 8526351288110022622}
+  - component: {fileID: 600604509820479915}
   m_Layer: 0
   m_Name: Player
   m_TagString: Paddle
@@ -163,7 +166,89 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 10
   tableCollider: {fileID: 0}
-  playerSide: 0
+--- !u!114 &5838564671337458639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5314055642078299294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actions: {fileID: -944628639613478452, guid: 97d4df3864d9d4043be6bb5eb5678ee0, type: 3}
+  m_NotificationBehavior: 0
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents:
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 3292bc9c-d241-4ad2-9594-e44e3e3dcae2
+    m_ActionName: Player/Move[/DualShock4GamepadHID/leftStick,/XInputControllerWindows/leftStick]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: a8a7aeac-82d4-459b-a180-d088feba5460
+    m_ActionName: Player/Hit[/DualShock4GamepadHID/buttonSouth,/XInputControllerWindows/buttonSouth]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: 
+        m_MethodName: 
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: 
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 9feeb7a1-3ef0-4daa-a1d1-76f64c0e38cd
+    m_ActionName: Player/Join[/XInputControllerWindows/buttonSouth,/SwitchProControllerHID/buttonSouth,/XInputControllerWindows1/buttonSouth,/XInputControllerWindows2/buttonSouth]
+  m_NeverAutoSwitchControlSchemes: 1
+  m_DefaultControlScheme: GamepadScheme
+  m_DefaultActionMap: Player
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
+--- !u!114 &8526351288110022622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5314055642078299294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d343e8c270f94a44b96796a35944956a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  paddleController: {fileID: 754534206621165182}
+  hitDetector: {fileID: 0}
+  playerInput: {fileID: 5838564671337458639}
+--- !u!114 &600604509820479915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5314055642078299294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5c058d8807ca8c54896eb2a81bc7bc59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  boundsLeft: {fileID: 0}
+  boundsRight: {fileID: 0}
 --- !u!1 &5794525292500851779
 GameObject:
   m_ObjectHideFlags: 0

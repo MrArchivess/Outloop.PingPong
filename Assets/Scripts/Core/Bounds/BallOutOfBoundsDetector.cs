@@ -6,8 +6,6 @@ using UnityEngine;
 
 public class BallOutOfBoundsDetector : MonoBehaviour
 {
-    
-    public static event Action roundOver;
 
     private void OnCollisionEnter(Collision col)
     {

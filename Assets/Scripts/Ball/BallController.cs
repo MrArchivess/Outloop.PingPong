@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class BallController : MonoBehaviour
 {
@@ -120,6 +121,7 @@ public class BallController : MonoBehaviour
         HitDetector.OnBallHit += SetLastBallHitter;
         BoundsEventBus.OnRoundOver += SetRoundOverTriggered;
         TableSideBoundsDetector.legalMoveMade += MakeMoveLegal;
+        GameManager.OnPlayerConnected += SetPaddles;
 
     
     }
@@ -130,5 +132,6 @@ public class BallController : MonoBehaviour
         HitDetector.OnBallHit -= SetLastBallHitter;
         BoundsEventBus.OnRoundOver -= SetRoundOverTriggered;
         TableSideBoundsDetector.legalMoveMade -= MakeMoveLegal;
+        GameManager.OnPlayerConnected -= SetPaddles;
     }
 }
