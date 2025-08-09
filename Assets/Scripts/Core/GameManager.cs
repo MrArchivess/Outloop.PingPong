@@ -56,22 +56,31 @@ public class GameManager : MonoBehaviour
             Instance = this;
 
         gameState = new ServingState();
-        matchState = new MatchReadyState();
-     
-        StartCoroutine(StartMatch());
+        matchState = new MatchPrepState();
+        //StartCoroutine(StartMatch());
     }
 
     private void Start()
     {
         StartCoroutine(RegisterPlayerJoinHandler());
     }
-
+    
     private IEnumerator RegisterPlayerJoinHandler()
     {
         while (PlayerInputManager.instance == null)
             yield return null;
 
         PlayerInputManager.instance.onPlayerJoined += OnPlayerJoined;
+        StartCoroutine(StartMatchWhenEnoughPlayersJoined());
+    }
+
+    private IEnumerator StartMatchWhenEnoughPlayersJoined()
+    {
+        while (PlayerInputManager.instance.playerCount < 2) yield return null;
+
+        StartCoroutine(StartMatch());
+
+
     }
 
     private void OnPlayerJoined(PlayerInput input)
@@ -96,8 +105,10 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator StartMatch()
     {
+        Debug.Log("Match Getting Ready");
         yield return new WaitForSeconds(3f);
         matchState = new MatchActiveState();
+        Debug.Log("Match Started!");
     }
 
     private void EndMatch(PlayerSide player)
