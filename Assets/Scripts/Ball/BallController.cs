@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 public class BallController : MonoBehaviour
 {
     public static event Action OnBallReset;
+    public static event Action<BallController> OnBallHit;
 
     [SerializeField] private float serveForce;
     [SerializeField] private float maxVelocity = 10f;
@@ -112,6 +113,7 @@ public class BallController : MonoBehaviour
     {
         playerWhoLastHit = playerWhoLastHitBall;
         isMoveLegal = false;
+        OnBallHit.Invoke(this);
         
     }
 
