@@ -107,11 +107,11 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator StartMatch()
     {
-        OnMatchReady.Invoke();
-        yield return new WaitForSeconds(2f);
-        OnMatchGo.Invoke();
+        OnMatchReady?.Invoke();
         yield return new WaitForSeconds(1f);
-        OnMatchStarted.Invoke();
+        OnMatchGo?.Invoke();
+        yield return new WaitForSeconds(.5f);
+        OnMatchStarted?.Invoke();
         matchState = new MatchActiveState();
 
     }
