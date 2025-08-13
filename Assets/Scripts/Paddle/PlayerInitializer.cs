@@ -6,48 +6,54 @@ using UnityEngine.InputSystem;
 
 public class PlayerInitializer : MonoBehaviour
 {
-    public static event Action SetPlayerInputs;
-
     private PaddleController paddleController;
     private HitDetector hitDetector;
     private PlayerInput playerInput;
     private InputHandler inputHandler;
+
+    public PlayerSide Side {  get; private set; }
 
     [SerializeField] private Transform boundsLeft;
     [SerializeField] private Transform boundsRight;
 
     private void Awake()
     {
-        playerInput = GetComponent<PlayerInput>();
         paddleController = GetComponent<PaddleController>();
-        hitDetector = GetComponentInChildren<HitDetector>();
         inputHandler  = GetComponent<InputHandler>();
+        playerInput = GetComponent<PlayerInput>();
+        hitDetector = GetComponentInChildren<HitDetector>();
     }
 
-    public void InitializePlayer(PlayerSide side, Bounds bounds)
+    public void InitializeCore(PlayerSide side, Bounds bounds)
     {
+        Side = side;
         paddleController.SetSide(side);
+        paddleController.SetMovementBounds(bounds);
         paddleController.SetHitDetector();
         GameManager.Instance.RegisterPaddle(side, paddleController);
-        paddleController.SetMovementBounds(bounds);
-        Quaternion originalRotation = transform.rotation;
         inputHandler.SetInputs();
 
-        if (side == PlayerSide.Right)
-        {
-            //transform.rotation *= Quaternion.Euler(0, 180, 0);
-            RotateRightPlayer();
-        }
-
-        Quaternion correctRotation = originalRotation *= Quaternion.Euler(0, 180, 0);
-        if (side == PlayerSide.Right && transform.rotation != correctRotation)
-            RotateRightPlayer();
+        StartCoroutine(ForceOrientationStable());
     }
 
-    private void RotateRightPlayer()
+    private IEnumerator ForceOrientationStable()
     {
-        Quaternion rotation = Quaternion.Euler(0, 180, 0);
-        transform.rotation *= rotation;
+        yield return new WaitForEndOfFrame();
+        paddleController.SetPlayerRotation(Side);
+
+        yield return new WaitForEndOfFrame();
+        paddleController.SetPlayerRotation(Side);
+    }
+
+    public void ForceRotationNextFrame(PlayerSide side)
+    {
+        StartCoroutine(RotateLate(side));
+    }
+
+    private IEnumerator RotateLate(PlayerSide side)
+    {
+        yield return new WaitForEndOfFrame();
+        paddleController.SetPlayerRotation(side);
     }
 
     public void SetBounds(Transform left, Transform right)

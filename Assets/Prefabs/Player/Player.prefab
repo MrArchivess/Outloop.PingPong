@@ -166,6 +166,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 10
   tableCollider: {fileID: 0}
+  playerSide: 0
 --- !u!114 &5838564671337458639
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -10,8 +10,15 @@ public class PaddleController : MonoBehaviour
     public PlayerSide Playerside => playerSide;
     [SerializeField] private PlayerSide playerSide;
 
+    private Quaternion baseLocalRot;
+
     private Vector2 inputDirection = Vector2.zero;
     private Bounds movementBounds;
+
+    private void Awake()
+    {
+        baseLocalRot = transform.localRotation;
+    }
 
     public void SetMovementBounds(Bounds bounds)
     {
@@ -21,6 +28,14 @@ public class PaddleController : MonoBehaviour
     public void SetSide(PlayerSide side)
     {
         playerSide = side;
+    }
+
+    public void SetPlayerRotation(PlayerSide side)
+    {
+        transform.localRotation = baseLocalRot * (side == PlayerSide.Right
+            ? Quaternion.Euler(0f, 180f, 0f)
+            : Quaternion.identity);
+        LogFacing("SET Player Right");
     }
 
     public void SetHitDetector()
@@ -47,11 +62,23 @@ public class PaddleController : MonoBehaviour
         return null;
     }
 
+    private void LogFacing(string tag)
+    {
+        float yaw = transform.eulerAngles.y;
+        Vector3 fwd = transform.forward;
+        Debug.Log($"[{name}] {tag}  yaw={yaw:0.0}  forward={fwd}");
+    }
+
     private void Update()
     { 
             Vector3 move = new Vector3(inputDirection.x, 0, inputDirection.y);
         if (GameManager.Instance.MatchState is MatchActiveState) transform.Translate(move * moveSpeed * Time.deltaTime, Space.World);
             ClampPosition();
+
+        if (playerSide == PlayerSide.Right)
+        {
+            LogFacing("Update Player Right");
+        }
     }
 
     private void ClampPosition()

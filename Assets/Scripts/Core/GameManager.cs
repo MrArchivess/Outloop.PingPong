@@ -14,6 +14,10 @@ public class GameManager : MonoBehaviour
     public static event Action OnMatchReset;
     public static event Action OnPlayerConnected;
 
+    public static event Action OnMatchReady;
+    public static event Action OnMatchGo;
+    public static event Action OnMatchStarted;
+
     [SerializeField] private GameObject paddlePrefab;
 
     [SerializeField] private GameObject boundsLeftObject;
@@ -32,7 +36,7 @@ public class GameManager : MonoBehaviour
     public IGameState GameState => gameState;
     private IGameState gameState;
     public PlayerSide CurrentServer => currentServer;
-    [SerializeField]private PlayerSide currentServer = PlayerSide.Left;
+    [SerializeField] private PlayerSide currentServer = PlayerSide.Left;
 
     private int maxServe = 2;
     private int currentServed = 0;
@@ -57,8 +61,6 @@ public class GameManager : MonoBehaviour
 
         gameState = new ServingState();
         matchState = new MatchReadyState();
-     
-        StartCoroutine(StartMatch());
     }
 
     private void Start()
@@ -82,22 +84,36 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator InitPlayerNextFrame(PlayerInput input)
     {
-        yield return null;
-        var initializer = input.GetComponent<PlayerInitializer>();
+        yield return null; // let PlayerInput finish spawning/parenting
+        var init = input.GetComponent<PlayerInitializer>();
+        var bounds = (input.playerIndex == 0)
+            ? boundsLeftObject.GetComponent<BoxCollider>().bounds
+            : boundsRightObject.GetComponent<BoxCollider>().bounds;
 
-        if (input.playerIndex == 0)
-            initializer.InitializePlayer(PlayerSide.Left, boundsLeftObject.GetComponent<BoxCollider>().bounds);
-        else
-            initializer.InitializePlayer(PlayerSide.Right, boundsRightObject.GetComponent<BoxCollider>().bounds);
+        init.InitializeCore(input.playerIndex == 0 ? PlayerSide.Left : PlayerSide.Right, bounds);
+        init.SetBounds(boundsLeftObject.transform, boundsRightObject.transform);
 
-        initializer.SetBounds(boundsLeftObject.transform, boundsRightObject.transform);
-        OnPlayerConnected.Invoke();
+        OnPlayerConnected?.Invoke();
+        CheckMatchStart();
+    }
+
+    private void CheckMatchStart()
+    {
+        if (PlayerInputManager.instance == null) return;
+        if (PlayerInputManager.instance.playerCount < 2) return;
+
+        StartCoroutine(StartMatch());
     }
 
     private IEnumerator StartMatch()
     {
-        yield return new WaitForSeconds(3f);
+        OnMatchReady.Invoke();
+        yield return new WaitForSeconds(2f);
+        OnMatchGo.Invoke();
+        yield return new WaitForSeconds(1f);
+        OnMatchStarted.Invoke();
         matchState = new MatchActiveState();
+
     }
 
     private void EndMatch(PlayerSide player)
@@ -120,7 +136,7 @@ public class GameManager : MonoBehaviour
         currentServed = 0;
         OnMatchReset.Invoke();
         yield return new WaitForSeconds(1f);
-        StartCoroutine(StartMatch());
+        CheckMatchStart();
     }
 
     private void SetServer()
@@ -180,7 +196,7 @@ public class GameManager : MonoBehaviour
             yield break;
         }
 
-        for (int i = 0;i < 5; i++)
+        for (int i = 0; i < 5; i++)
         {
             if (ballController != null)
                 break;
@@ -214,7 +230,7 @@ public class GameManager : MonoBehaviour
         {
             pointWinner = opponent;
         }
-        
+
         PointWon?.Invoke(pointWinner);
         StartCoroutine(HandleRoundOver());
     }
