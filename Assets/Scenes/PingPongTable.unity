@@ -1051,7 +1051,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fxRoot: {fileID: 0}
   scale: 2
-  orientOpposite: 0
+  orientOpposite: 1
 --- !u!1 &1312130211
 GameObject:
   m_ObjectHideFlags: 0
