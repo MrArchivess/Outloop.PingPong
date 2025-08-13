@@ -38,11 +38,11 @@ public class PlayerInitializer : MonoBehaviour
 
     private IEnumerator ForceOrientationStable()
     {
-        yield return new WaitForEndOfFrame();
-        paddleController.SetPlayerRotation(Side);
-
-        yield return new WaitForEndOfFrame();
-        paddleController.SetPlayerRotation(Side);
+        for (int i = 0; i < 10; i++)
+        {
+            yield return new WaitForEndOfFrame();
+            paddleController.SetPlayerRotation(Side);
+        }
     }
 
     public void ForceRotationNextFrame(PlayerSide side)

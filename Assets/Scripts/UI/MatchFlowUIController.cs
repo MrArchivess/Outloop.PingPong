@@ -2,69 +2,134 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class MatchFlowUIController : MonoBehaviour
 {
     [SerializeField] private CanvasGroup readyGroup;
     [SerializeField] private RectTransform readyRT;
+    [SerializeField] private CanvasGroup setGroup;
+    [SerializeField] private RectTransform setRT;
     [SerializeField] private CanvasGroup goGroup;
     [SerializeField] private RectTransform goRT;
 
+    [SerializeField] private CanvasGroup scoreGroup;
+    [SerializeField] private RectTransform scoreRT;
+    [SerializeField] private TMP_Text scoreText;
+
     [SerializeField] private float fadeTime = 0.125f;
     [SerializeField] private float popScale = 1.15f;
+    [SerializeField] private float scoreDisplayTime = 2f;
 
-    private Coroutine current;
+    private Coroutine seq;
 
-    private void Awake() => TransitionToStarted();
-
-    private void TransitionToReady()
+    private void Awake()
     {
-        StartSeq(ref current, Show(readyGroup, readyRT), Hide(goGroup, goRT));
-    }
-    private void TransitionToGo()
-    {
-        StartSeq(ref current, Show(goGroup, goRT), Hide(readyGroup, readyRT));
-    }
-    private void TransitionToStarted()
-    {
-        StartSeq(ref current, Hide(readyGroup, readyRT), Hide(goGroup, goRT));
+        HideInstant(readyGroup); HideInstant(goGroup);
+        if (setGroup) HideInstant(setGroup);
+        if (scoreGroup) HideInstant(scoreGroup);
     }
 
-    private void StartSeq(ref Coroutine handle, IEnumerator a, IEnumerator b = null)
+    private void OnEnable()
     {
-        if (handle != null) StopCoroutine(handle);
-        handle = StartCoroutine(Seq());
+        GameManager.OnMatchReady += OnReady;
+        GameManager.OnMatchGo += OnGo;
+        GameManager.OnMatchStarted += OnStarted;
 
-        IEnumerator Seq()
+        GameManager.PointWon += OnPointWon;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnMatchReady -= OnReady;
+        GameManager.OnMatchGo -= OnGo;
+        GameManager.OnMatchStarted -= OnStarted;
+
+        GameManager.PointWon -= OnPointWon;
+    }
+
+    private void OnReady()
+    {
+        StartSequence(
+            Show(readyGroup, readyRT),
+            Hide(goGroup, goRT),
+            setGroup ? Hide(setGroup, setRT) : null
+            );
+    }
+
+    public void OnSet()
+    {
+        if (!setGroup) return;
+        StartSequence(
+            Hide(readyGroup, readyRT),
+            Show(setGroup, setRT)
+            );
+    }
+
+    private void OnGo()
+    {
+        StartSequence(
+            Hide(readyGroup, readyRT),
+            setGroup ? Hide(setGroup, setRT) : null,
+            Show(goGroup, goRT)
+            );
+    }
+    private void OnStarted()
+    {
+        StartSequence(
+            Hide(readyGroup, readyRT),
+            setGroup ? Hide(setGroup, setRT) : null,
+            Hide(goGroup, goRT)
+            );
+    }
+
+    private void OnPointWon(PlayerSide winner)
+    {
+        if (!scoreGroup) return;
+
+        if (scoreText) scoreText.text = $"{winner} scores!";
+
+        StartSequence(ScoreFlash());
+    }
+
+    private void StartSequence(params IEnumerator[] steps)
+    {
+        if (seq != null) StopCoroutine(seq);
+        seq = StartCoroutine(Run());
+        IEnumerator Run()
         {
-            yield return StartCoroutine(a);
-            if (b != null) yield return StartCoroutine(b);
+            foreach (var step in steps)
+            {
+                if (step == null) continue;
+                yield return StartCoroutine(step);
+            }
         }
+
     }
 
     private IEnumerator Show(CanvasGroup g, RectTransform rt)
     {
+        if (!g) yield break;
         g.gameObject.SetActive(true);
-        rt.localScale = Vector3.one * (1f / popScale);
-        g.alpha = 0f;
+        g.interactable = false; g.blocksRaycasts = false;
+        float t = 0f; g.alpha = 0f;
+        Vector3 from = Vector3.one / popScale, to = Vector3.one;
 
-        float t = 0f;
         while (t < fadeTime)
         {
             t += Time.unscaledDeltaTime;
             float k = Mathf.Clamp01(t / fadeTime);
             g.alpha = k;
-            rt.localScale = Vector3.Lerp(Vector3.one / popScale, Vector3.one, EaseOutBack(k));
+            rt.localScale = Vector3.Lerp(from, to, EaseOutBack(k));
             yield return null;
         }
-        g.alpha = 1f; rt.localScale = Vector3.one;
-        g.interactable = false; g.blocksRaycasts = false;
+        g.alpha = 1f; rt.localScale = to;
     }
 
     private IEnumerator Hide(CanvasGroup g, RectTransform rt)
     {
-        float t = 0f;
-        float start = g.alpha;
+        if (!g) yield break;
+        float t = 0f; float start = g.alpha;
         while (t < fadeTime)
         {
             t += Time.unscaledDeltaTime;
@@ -76,6 +141,21 @@ public class MatchFlowUIController : MonoBehaviour
         g.gameObject.SetActive(false);
     }
 
+    private void HideInstant(CanvasGroup g)
+    {
+        if (!g) return;
+        g.alpha = 0f;
+        g.gameObject.SetActive(false);
+    }
+
+    private IEnumerator ScoreFlash()
+    {
+        yield return Show(scoreGroup, scoreRT);
+        float t = 0f;
+        while (t < scoreDisplayTime) { t += Time.unscaledDeltaTime; yield return null; }
+        yield return Hide(scoreGroup, scoreRT);
+    }
+
     // snappy ease for the pop
     private float EaseOutBack(float x)
     {
@@ -84,17 +164,5 @@ public class MatchFlowUIController : MonoBehaviour
         return 1 + c3 * Mathf.Pow(x - 1, 3) + c1 * Mathf.Pow(x - 1, 2);
     }
 
-    private void OnEnable()
-    {
-        GameManager.OnMatchReady += TransitionToReady;
-        GameManager.OnMatchGo += TransitionToGo;
-        GameManager.OnMatchStarted += TransitionToStarted;
-    }
 
-    private void OnDisable()
-    {
-        GameManager.OnMatchReady -= TransitionToReady;
-        GameManager.OnMatchGo -= TransitionToGo;
-        GameManager.OnMatchStarted -= TransitionToStarted;
-    }
 }
