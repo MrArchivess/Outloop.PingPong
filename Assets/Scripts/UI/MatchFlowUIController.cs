@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UIReadyGoManager : MonoBehaviour
+public class MatchFlowUIController : MonoBehaviour
 {
     [SerializeField] private CanvasGroup readyGroup;
     [SerializeField] private RectTransform readyRT;
