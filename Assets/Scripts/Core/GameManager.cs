@@ -130,11 +130,11 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator ResetMatch()
     {
+        OnMatchReset.Invoke();
         matchState = new MatchReadyState();
         gameState = new ServingState();
         currentServer = PlayerSide.Left;
         currentServed = 0;
-        OnMatchReset.Invoke();
         yield return new WaitForSeconds(1f);
         CheckMatchStart();
     }

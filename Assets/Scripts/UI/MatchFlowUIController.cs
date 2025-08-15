@@ -6,6 +6,7 @@ using TMPro;
 
 public class MatchFlowUIController : MonoBehaviour
 {
+    [Header("Ready/Set/Go UI")]
     [SerializeField] private CanvasGroup readyGroup;
     [SerializeField] private RectTransform readyRT;
     [SerializeField] private CanvasGroup setGroup;
@@ -13,13 +14,26 @@ public class MatchFlowUIController : MonoBehaviour
     [SerializeField] private CanvasGroup goGroup;
     [SerializeField] private RectTransform goRT;
 
+    [Header("Scoreboard UI")]
     [SerializeField] private CanvasGroup scoreGroup;
     [SerializeField] private RectTransform scoreRT;
-    [SerializeField] private TMP_Text scoreText;
+    [SerializeField] private TMP_Text winnerText;
 
+    [Header("Scoreboard Tweening")]
     [SerializeField] private float fadeTime = 0.125f;
-    [SerializeField] private float popScale = 1.15f;
+    [SerializeField] private float popScale = 100f;
     [SerializeField] private float scoreDisplayTime = 2f;
+
+    [Header("Score UI")]
+    [SerializeField] private TMP_Text leftScoreTMP;
+    [SerializeField] private TMP_Text rightScoreTMP;
+    [SerializeField] private RectTransform leftScoreRT;
+    [SerializeField] private RectTransform rightScoreRT;
+
+    [Header("Score Tweening")]
+    [SerializeField, Range(0.1f, 1.5f)] private float scoreTweenTime = 0.6f;
+    [SerializeField, Range(0.1f, 1.5f)] private float scorePunchScale = 1.12f;
+    [SerializeField, Range(0.05f, 0.35f)] private float scorePunchTime = 0.15f;
 
     private Coroutine seq;
 
@@ -36,7 +50,7 @@ public class MatchFlowUIController : MonoBehaviour
         GameManager.OnMatchGo += OnGo;
         GameManager.OnMatchStarted += OnStarted;
 
-        GameManager.PointWon += OnPointWon;
+        ScoreSystem.ScoreUpdated += OnPointWon;
     }
 
     private void OnDisable()
@@ -45,7 +59,7 @@ public class MatchFlowUIController : MonoBehaviour
         GameManager.OnMatchGo -= OnGo;
         GameManager.OnMatchStarted -= OnStarted;
 
-        GameManager.PointWon -= OnPointWon;
+        ScoreSystem.ScoreUpdated -= OnPointWon;
     }
 
     private void OnReady()
@@ -87,9 +101,15 @@ public class MatchFlowUIController : MonoBehaviour
     {
         if (!scoreGroup) return;
 
-        if (scoreText) scoreText.text = $"{winner} scores!";
+        if (winnerText) winnerText.text = $"{winner} scores!";
 
-        StartSequence(ScoreFlash());
+        int leftOld = ScoreSystem.Instance.ScoreLeft;
+        int rightOld = ScoreSystem.Instance.ScoreRight;
+
+        int leftNew = leftOld + (winner == PlayerSide.Left ? 1 : 0);
+        int rightNew = rightOld + (winner == PlayerSide.Right ? 1 : 0);
+
+        StartSequence(ScoreFlash(leftOld, rightOld, leftNew, rightNew, winner));
     }
 
     private void StartSequence(params IEnumerator[] steps)
@@ -148,12 +168,67 @@ public class MatchFlowUIController : MonoBehaviour
         g.gameObject.SetActive(false);
     }
 
-    private IEnumerator ScoreFlash()
+    private IEnumerator ScoreFlash(int leftOld, int rightOld, int leftNew, int rightNew, PlayerSide winner)
     {
+        if (leftScoreTMP) leftScoreTMP.text = leftOld.ToString();
+        if (rightScoreTMP) rightScoreTMP.text = rightOld.ToString();
+
         yield return Show(scoreGroup, scoreRT);
+
+        if (winner == PlayerSide.Left)
+        {
+            if (leftScoreTMP) yield return TweenScore(leftScoreTMP, leftOld, leftNew, scoreTweenTime);
+            if (leftScoreRT) yield return Punch(leftScoreRT, scorePunchScale, scorePunchTime);
+        }
+        else
+        {
+            if (rightScoreTMP) yield return TweenScore(rightScoreTMP, rightOld, rightNew, scoreTweenTime);
+            if (rightScoreRT) yield return Punch(rightScoreRT, scorePunchScale, scorePunchTime);  
+        }
+
         float t = 0f;
+
         while (t < scoreDisplayTime) { t += Time.unscaledDeltaTime; yield return null; }
+
         yield return Hide(scoreGroup, scoreRT);
+    }
+
+    private IEnumerator TweenScore(TMP_Text tmp, int from, int to, float duration)
+    {
+        float t = 0f;
+        while (t < duration)
+        {
+            t += Time.unscaledDeltaTime;
+            float k = Mathf.Clamp01(t / duration);
+            float e = 1f - Mathf.Pow(1f - k, 3f);
+            int value = Mathf.RoundToInt(Mathf.Lerp(from, to, e));
+            tmp.text = value.ToString();
+            yield return null;
+        }
+        tmp.text = to.ToString();
+    }
+
+    private IEnumerator Punch(RectTransform target, float scale, float dur)
+    {
+        if (!target) yield break;
+        Vector3 s0 = target.localScale;
+        Vector3 s1 = s0 * scale;
+
+        float t = 0f;
+        while (t < dur)
+        {
+            t += Time.unscaledDeltaTime;
+            target.localScale = Vector3.Lerp(s0, s1, t / dur);
+            yield return null;
+        }
+        t = 0f;
+        while (t < dur)
+        {
+            t += Time.unscaledDeltaTime;
+            target.localScale = Vector3.Lerp(s1, s0, t / dur);
+            yield return null;
+        }
+        target.localScale = s0;
     }
 
     // snappy ease for the pop

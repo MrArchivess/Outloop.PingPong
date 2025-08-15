@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class ScoreSystem : MonoBehaviour
 {
+    public static ScoreSystem Instance { get; private set; }
+
     public static event Action<PlayerSide> ScoreUpdated;
     public static event Action<PlayerSide> WinnerAnnounced;
 
@@ -16,8 +18,19 @@ public class ScoreSystem : MonoBehaviour
 
     private int winCondition = 5;
 
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this);
+        }
+        else
+            Instance = this;
+    }
+
     private void AddPoint(PlayerSide side)
     {
+        ScoreUpdated?.Invoke(side);
         if (side == PlayerSide.Left)
         {
             scoreLeft++;
@@ -29,7 +42,6 @@ public class ScoreSystem : MonoBehaviour
             Debug.Log("Point for the Right");
             scoreRight++;
         }
-        ScoreUpdated?.Invoke(side);
         CheckWinCondition();
     }
 

@@ -27,8 +27,6 @@ public class TableSideBoundsDetector : MonoBehaviour
             {
                 BoundsEventBus.RaiseBallOutofBounds(ball.PlayerWhoLastHit, ball.IsMoveLegal);
                 BoundsEventBus.RaiseRoundOver();
-                //ballOutOfBounds.Invoke(ball.PlayerWhoLastHit, ball.IsMoveLegal);
-                //roundOver?.Invoke();
             }
 
         }
