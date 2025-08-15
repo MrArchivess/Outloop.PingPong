@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     public static event Action OnMatchReady;
     public static event Action OnMatchGo;
     public static event Action OnMatchStarted;
+    public static event Action<PlayerSide> OnMatchDone;
 
     [SerializeField] private GameObject paddlePrefab;
 
@@ -118,23 +119,25 @@ public class GameManager : MonoBehaviour
 
     private void EndMatch(PlayerSide player)
     {
-        StartCoroutine(EndMatch());
-    }
-
-    private IEnumerator EndMatch()
-    {
+        Debug.Log("Ending match");
         matchState = new MatchOverState();
-        yield return new WaitForSeconds(3f);
-        StartCoroutine(ResetMatch());
+        OnMatchDone?.Invoke(player);
     }
 
-    private IEnumerator ResetMatch()
+    private void ResetMatch()
     {
-        OnMatchReset.Invoke();
+        Debug.Log("Resetting Match");
+        StartCoroutine(ResetMatchSequence());
+    }
+
+    private IEnumerator ResetMatchSequence()
+    {
         matchState = new MatchReadyState();
         gameState = new ServingState();
         currentServer = PlayerSide.Left;
         currentServed = 0;
+        OnMatchReset?.Invoke();
+        StartCoroutine(WaitForServerPaddleThenSetPosition());
         yield return new WaitForSeconds(1f);
         CheckMatchStart();
     }
@@ -168,7 +171,6 @@ public class GameManager : MonoBehaviour
 
     private void HandleRoundReset()
     {
-        Debug.Log("Round Reset Started!");
         gameState = new GameOverState();
         currentServed++;
         if (currentServed == maxServe) SetServer();
@@ -241,6 +243,7 @@ public class GameManager : MonoBehaviour
         BallController.OnBallReset += HandleRoundReset;
         BoundsEventBus.OnBallOutOfBounds += DeterminePointWin;
         ScoreSystem.WinnerAnnounced += EndMatch;
+        MatchFlowUIController.MatchFinished += ResetMatch;
     }
 
     private void OnDisable()
@@ -249,5 +252,6 @@ public class GameManager : MonoBehaviour
         BallController.OnBallReset -= HandleRoundReset;
         BoundsEventBus.OnBallOutOfBounds -= DeterminePointWin;
         ScoreSystem.WinnerAnnounced -= EndMatch;
+        MatchFlowUIController.MatchFinished -= ResetMatch;
     }
 }

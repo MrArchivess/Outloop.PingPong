@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,6 +7,9 @@ using TMPro;
 
 public class MatchFlowUIController : MonoBehaviour
 {
+    public static event Action ScoreFlashFinished;
+    public static event Action MatchFinished;
+
     [Header("Ready/Set/Go UI")]
     [SerializeField] private CanvasGroup readyGroup;
     [SerializeField] private RectTransform readyRT;
@@ -17,6 +21,11 @@ public class MatchFlowUIController : MonoBehaviour
     [Header("Scoreboard UI")]
     [SerializeField] private CanvasGroup scoreGroup;
     [SerializeField] private RectTransform scoreRT;
+    [SerializeField] private TMP_Text scorerText;
+
+    [Header("Winner UI")]
+    [SerializeField] private CanvasGroup winnerGroup;
+    [SerializeField] private RectTransform winnerRT;
     [SerializeField] private TMP_Text winnerText;
 
     [Header("Scoreboard Tweening")]
@@ -42,6 +51,7 @@ public class MatchFlowUIController : MonoBehaviour
         HideInstant(readyGroup); HideInstant(goGroup);
         if (setGroup) HideInstant(setGroup);
         if (scoreGroup) HideInstant(scoreGroup);
+        if (winnerGroup) HideInstant(winnerGroup);
     }
 
     private void OnEnable()
@@ -51,6 +61,7 @@ public class MatchFlowUIController : MonoBehaviour
         GameManager.OnMatchStarted += OnStarted;
 
         ScoreSystem.ScoreUpdated += OnPointWon;
+        ScoreSystem.WinnerAnnounced += AnnounceWinner;
     }
 
     private void OnDisable()
@@ -60,6 +71,7 @@ public class MatchFlowUIController : MonoBehaviour
         GameManager.OnMatchStarted -= OnStarted;
 
         ScoreSystem.ScoreUpdated -= OnPointWon;
+        ScoreSystem.WinnerAnnounced -= AnnounceWinner;
     }
 
     private void OnReady()
@@ -97,20 +109,40 @@ public class MatchFlowUIController : MonoBehaviour
             );
     }
 
-    private void OnPointWon(PlayerSide winner)
+    private void AnnounceWinner(PlayerSide winner)
+    {
+        Debug.Log("Winner found");
+        //StartSequence(OnWinnerAnnounced(winner));
+        StartCoroutine(OnWinnerAnnounced(winner));
+    }
+
+    private IEnumerator OnWinnerAnnounced(PlayerSide winner)
+    {
+        //HIER GAAT NOG IETS NIET GOED
+        Debug.Log("Announcing Winner in UI");
+        if (winnerText) winnerText.text = $"{winner}";
+        yield return Show(winnerGroup, winnerRT);
+        yield return new WaitForSeconds(3f);
+        yield return Hide(winnerGroup, winnerRT);
+        MatchFinished.Invoke();
+    }
+
+    private void OnPointWon(PlayerSide scorer)
     {
         if (!scoreGroup) return;
 
-        if (winnerText) winnerText.text = $"{winner} scores!";
+        if (scorerText) scorerText.text = $"{scorer} scores!";
 
         int leftOld = ScoreSystem.Instance.ScoreLeft;
         int rightOld = ScoreSystem.Instance.ScoreRight;
 
-        int leftNew = leftOld + (winner == PlayerSide.Left ? 1 : 0);
-        int rightNew = rightOld + (winner == PlayerSide.Right ? 1 : 0);
+        int leftNew = leftOld + (scorer == PlayerSide.Left ? 1 : 0);
+        int rightNew = rightOld + (scorer == PlayerSide.Right ? 1 : 0);
 
-        StartSequence(ScoreFlash(leftOld, rightOld, leftNew, rightNew, winner));
+        StartSequence(ScoreFlash(leftOld, rightOld, leftNew, rightNew, scorer));
     }
+
+
 
     private void StartSequence(params IEnumerator[] steps)
     {
@@ -191,6 +223,7 @@ public class MatchFlowUIController : MonoBehaviour
         while (t < scoreDisplayTime) { t += Time.unscaledDeltaTime; yield return null; }
 
         yield return Hide(scoreGroup, scoreRT);
+        ScoreFlashFinished.Invoke();
     }
 
     private IEnumerator TweenScore(TMP_Text tmp, int from, int to, float duration)
@@ -238,6 +271,4 @@ public class MatchFlowUIController : MonoBehaviour
         const float c3 = c1 + 1f;
         return 1 + c3 * Mathf.Pow(x - 1, 3) + c1 * Mathf.Pow(x - 1, 2);
     }
-
-
 }

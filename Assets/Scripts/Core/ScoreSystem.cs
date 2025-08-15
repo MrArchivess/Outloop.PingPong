@@ -16,6 +16,7 @@ public class ScoreSystem : MonoBehaviour
     public int ScoreRight => scoreRight;
     private int scoreRight;
 
+    public int WinCondition => winCondition;
     private int winCondition = 5;
 
     private void Awake()
@@ -42,11 +43,11 @@ public class ScoreSystem : MonoBehaviour
             Debug.Log("Point for the Right");
             scoreRight++;
         }
-        CheckWinCondition();
     }
 
     private void CheckWinCondition()
     {
+        Debug.Log("Checking Win Condition");
         if (scoreLeft >= winCondition && scoreLeft - scoreRight >= 2) WinnerAnnounced?.Invoke(PlayerSide.Left);
         else if (scoreRight >= winCondition && (scoreRight - scoreLeft >= 2)) WinnerAnnounced?.Invoke(PlayerSide.Right);
     }
@@ -61,12 +62,14 @@ public class ScoreSystem : MonoBehaviour
     {
         GameManager.PointWon += AddPoint;
         GameManager.OnMatchReset += ResetScore;
+        MatchFlowUIController.ScoreFlashFinished += CheckWinCondition;
     }
 
     private void OnDisable()
     {
         GameManager.PointWon -= AddPoint;
         GameManager.OnMatchReset -= ResetScore;
+        MatchFlowUIController.ScoreFlashFinished -= CheckWinCondition;
     }
 
 }

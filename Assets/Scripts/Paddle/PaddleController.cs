@@ -35,7 +35,6 @@ public class PaddleController : MonoBehaviour
         transform.localRotation = baseLocalRot * (side == PlayerSide.Right
             ? Quaternion.Euler(0f, 180f, 0f)
             : Quaternion.identity);
-        LogFacing("SET Player Right");
     }
 
     public void SetHitDetector()
@@ -66,7 +65,7 @@ public class PaddleController : MonoBehaviour
     {
         float yaw = transform.eulerAngles.y;
         Vector3 fwd = transform.forward;
-        Debug.Log($"[{name}] {tag}  yaw={yaw:0.0}  forward={fwd}");
+        //Debug.Log($"[{name}] {tag}  yaw={yaw:0.0}  forward={fwd}");
     }
 
     private void Update()
@@ -74,11 +73,6 @@ public class PaddleController : MonoBehaviour
             Vector3 move = new Vector3(inputDirection.x, 0, inputDirection.y);
         if (GameManager.Instance.MatchState is MatchActiveState) transform.Translate(move * moveSpeed * Time.deltaTime, Space.World);
             ClampPosition();
-
-        if (playerSide == PlayerSide.Right)
-        {
-            LogFacing("Update Player Right");
-        }
     }
 
     private void ClampPosition()
