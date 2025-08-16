@@ -8,9 +8,11 @@ public class BallController : MonoBehaviour
 {
     public static event Action OnBallReset;
     public static event Action<BallController> OnBallHit;
+    public static event Action<AudioClip> OnBallTableBounce;
 
     [SerializeField] private float serveForce;
     [SerializeField] private float maxVelocity = 10f;
+    
 
     private IBounceStrategy currentBounceStrategy;
     private Rigidbody rb;
@@ -26,6 +28,8 @@ public class BallController : MonoBehaviour
 
     public bool IsServed => isServed;
     private bool isServed = false;
+
+    [SerializeField] private AudioClip TableBoundSFX;
 
 
     [SerializeField] private PaddleController[] paddles = new PaddleController[2];
@@ -92,10 +96,12 @@ public class BallController : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.tag == "Table")
+        if (collision.gameObject.tag == "Table_Left" || collision.gameObject.tag == "Table_Right")
         {
-            currentBounceStrategy = new DefaultBounceStrategy();
-            Vector3 bounceDirection = currentBounceStrategy.GetBounceDirection(collision, rb.velocity);
+            //currentBounceStrategy = new DefaultBounceStrategy();
+            //Vector3 bounceDirection = currentBounceStrategy.GetBounceDirection(collision, rb.velocity);
+            OnBallTableBounce?.Invoke(TableBoundSFX);
+
         }
     }
 

@@ -11,6 +11,7 @@ public class HitDetector : MonoBehaviour
     public static event Action OnServeStarted;
     public static event Action OnServeCompleted;
     public static event Action<PlayerSide> OnBallHit;
+    public static event Action<AudioClip> OnBallHitSFX;
 
     private float chargeTime = 0f;
     private float chargeDuration = 0f;
@@ -31,12 +32,20 @@ public class HitDetector : MonoBehaviour
     [SerializeField] private Color glowColor = new Color(1f, 0.5f, 0);
     [SerializeField] private float maxEmission = 10f;
 
-   [SerializeField] private PlayerSide playerSide;
+    [SerializeField] private PlayerSide playerSide;
+
+    [SerializeField] private AudioClip hitClip;
 
     public void Initialize(PlayerSide _playerSide)
     {
         playerSide = _playerSide;
     }
+
+    public void SetHitClip(AudioClip hitSFX)
+    {
+        hitClip = hitSFX;
+    }
+
 
     public void SetGlowRenderers(Renderer[] glowRenderer)
     {
@@ -151,6 +160,7 @@ public class HitDetector : MonoBehaviour
 
         chargeTime = 0f;
         OnBallHit?.Invoke(playerSide);
+        OnBallHitSFX?.Invoke(hitClip);
     }
 
     private void OnTriggerEnter(Collider other)

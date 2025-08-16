@@ -166,6 +166,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 10
   tableCollider: {fileID: 0}
+  hitClip: {fileID: 8300000, guid: 84cffb812faa6b94b9b356cb8664789e, type: 3}
   playerSide: 0
 --- !u!114 &5838564671337458639
 MonoBehaviour:
