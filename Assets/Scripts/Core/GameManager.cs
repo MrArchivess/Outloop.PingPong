@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance { get; private set; }
 
     public static event Action<PlayerSide> OnServerChanged;
+    public static event Action<GameObject> OnServerDetermined;
     public static event Action<PlayerSide> PointWon;
     public static event Action OnMatchReset;
     public static event Action OnPlayerConnected;
@@ -213,6 +214,8 @@ public class GameManager : MonoBehaviour
         }
 
         ballController.PrepareForServe(server.transform.position);
+        OnServerDetermined?.Invoke(server.gameObject);
+        //tell worldfollow that it needs to follow server
     }
 
     private void DeterminePointWin(PlayerSide playerWhoLastHitTheBall, bool moveIsLegal)
