@@ -8,7 +8,7 @@ This repository serves as a foundation that can be reused and expanded into othe
 ## 📈 Progress Summary (Phase 1 + Phase 1.1)
 
 In the span of ~5 weeks:
-- **123 effort points completed solo** (compared to ~40 points by a team of 3 in the same timeframe on a past project).
+- **130 effort points completed solo** (compared to ~40 points by a team of 3 in the same timeframe on a past project).
 - Projected to hit **126–129 points** by the close of Phase 1.1.
 - Equivalent to **~10x the velocity of a single developer** in previous team metrics.
 
@@ -42,8 +42,8 @@ This includes not only raw features but also:
 ---
 
 ## 🚀 Next Steps
-- Complete serve indicator and US08 sound effects to close Phase 1.1.
-- Move into Phase 2:
+- Complete US08 sound effects, US09 Gameplay Polish and US10 Refactoring to close Phase 1.1.
+- Moving into Phase 2:
   - AI opponent.
   - Additional ball types / special shots.
   - Expanded polish for round transitions.
@@ -64,6 +64,5 @@ This includes not only raw features but also:
 
 ## 🔗 Links
 - [Portfolio](https://jordypriessen.com/)  
-- [Project Board / Milestones](./.github/PROJECT_BOARD_LINK) _(adjust this link to your actual project board if public)_
 
 ---
