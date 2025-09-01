@@ -7,6 +7,8 @@ using TMPro;
 
 public class MatchFlowUIController : MonoBehaviour
 {
+    public static event Action<AudioClip> OnReadyStarted;
+    public static event Action<AudioClip> OnGoEnded;
     public static event Action ScoreFlashFinished;
     public static event Action MatchFinished;
 
@@ -17,6 +19,10 @@ public class MatchFlowUIController : MonoBehaviour
     [SerializeField] private RectTransform setRT;
     [SerializeField] private CanvasGroup goGroup;
     [SerializeField] private RectTransform goRT;
+
+    [Header("Music Intro/Background Loop")]
+    [SerializeField] private AudioClip introClip;
+    [SerializeField] private AudioClip backgroundLoop;
 
     [Header("Scoreboard UI")]
     [SerializeField] private CanvasGroup scoreGroup;
@@ -76,6 +82,7 @@ public class MatchFlowUIController : MonoBehaviour
 
     private void OnReady()
     {
+        OnReadyStarted.Invoke(introClip);
         StartSequence(
             Show(readyGroup, readyRT),
             Hide(goGroup, goRT),
@@ -102,6 +109,7 @@ public class MatchFlowUIController : MonoBehaviour
     }
     private void OnStarted()
     {
+        OnGoEnded.Invoke(backgroundLoop);
         StartSequence(
             Hide(readyGroup, readyRT),
             setGroup ? Hide(setGroup, setRT) : null,
