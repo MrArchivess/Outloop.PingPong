@@ -255,14 +255,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abc140662d432f14eb49631c4c9fb581, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  introClip: {fileID: 8300000, guid: 5c846c9bc532cb64a858ad3c51ad223f, type: 3}
+  backgroundLoop: {fileID: 8300000, guid: 6aa8c75fe36467e46a634eba825ab65a, type: 3}
+  winClip: {fileID: 8300000, guid: e3d2b80f832ac75418d0436acefb5957, type: 3}
+  loseClip: {fileID: 8300000, guid: 882c219d5c707f947b54612733b82bb8, type: 3}
   readyGroup: {fileID: 1318902965}
   readyRT: {fileID: 1548359909}
   setGroup: {fileID: 0}
   setRT: {fileID: 0}
   goGroup: {fileID: 321166263}
   goRT: {fileID: 321166260}
-  introClip: {fileID: 8300000, guid: 5c846c9bc532cb64a858ad3c51ad223f, type: 3}
-  backgroundLoop: {fileID: 8300000, guid: 6aa8c75fe36467e46a634eba825ab65a, type: 3}
   scoreGroup: {fileID: 1054863839}
   scoreRT: {fileID: 1054863835}
   scorerText: {fileID: 1190101936}

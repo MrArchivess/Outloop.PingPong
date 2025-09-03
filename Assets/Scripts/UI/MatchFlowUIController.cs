@@ -7,10 +7,17 @@ using TMPro;
 
 public class MatchFlowUIController : MonoBehaviour
 {
-    public static event Action<AudioClip> OnReadyStarted;
-    public static event Action<AudioClip> OnGoEnded;
+    public static event Action<AudioClip> ReadyMusic;
+    public static event Action<AudioClip> ActiveMusic;
+    public static event Action<AudioClip> EndMusic;
     public static event Action ScoreFlashFinished;
     public static event Action MatchFinished;
+
+    [Header("Music")]
+    [SerializeField] private AudioClip introClip;
+    [SerializeField] private AudioClip backgroundLoop;
+    [SerializeField] private AudioClip winClip;
+    [SerializeField] private AudioClip loseClip;
 
     [Header("Ready/Set/Go UI")]
     [SerializeField] private CanvasGroup readyGroup;
@@ -20,9 +27,6 @@ public class MatchFlowUIController : MonoBehaviour
     [SerializeField] private CanvasGroup goGroup;
     [SerializeField] private RectTransform goRT;
 
-    [Header("Music Intro/Background Loop")]
-    [SerializeField] private AudioClip introClip;
-    [SerializeField] private AudioClip backgroundLoop;
 
     [Header("Scoreboard UI")]
     [SerializeField] private CanvasGroup scoreGroup;
@@ -82,7 +86,7 @@ public class MatchFlowUIController : MonoBehaviour
 
     private void OnReady()
     {
-        OnReadyStarted?.Invoke(introClip);
+        ReadyMusic?.Invoke(introClip);
         StartSequence(
             Show(readyGroup, readyRT),
             Hide(goGroup, goRT),
@@ -109,7 +113,7 @@ public class MatchFlowUIController : MonoBehaviour
     }
     private void OnStarted()
     {
-        OnGoEnded?.Invoke(backgroundLoop);
+        ActiveMusic?.Invoke(backgroundLoop);
         StartSequence(
             Hide(readyGroup, readyRT),
             setGroup ? Hide(setGroup, setRT) : null,
@@ -119,9 +123,11 @@ public class MatchFlowUIController : MonoBehaviour
 
     private void AnnounceWinner(PlayerSide winner)
     {
+        if (winner == PlayerSide.Left) EndMusic?.Invoke(winClip);
+        else EndMusic?.Invoke(loseClip);
         Debug.Log("Winner found");
-        //StartSequence(OnWinnerAnnounced(winner));
         StartCoroutine(OnWinnerAnnounced(winner));
+        
     }
 
     private IEnumerator OnWinnerAnnounced(PlayerSide winner)
@@ -132,7 +138,9 @@ public class MatchFlowUIController : MonoBehaviour
         yield return Show(winnerGroup, winnerRT);
         yield return new WaitForSeconds(3f);
         yield return Hide(winnerGroup, winnerRT);
-        MatchFinished.Invoke();
+        MatchFinished?.Invoke();
+
+                
     }
 
     private void OnPointWon(PlayerSide scorer)

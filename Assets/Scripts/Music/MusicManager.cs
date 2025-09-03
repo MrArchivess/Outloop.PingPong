@@ -15,14 +15,16 @@ public class MusicManager : MonoBehaviour
 
     private void OnEnable()
     {
-        MatchFlowUIController.OnReadyStarted += PlayClip;
-        MatchFlowUIController.OnGoEnded += PlayLoop;
+        MatchFlowUIController.ReadyMusic += PlayClip;
+        MatchFlowUIController.ActiveMusic += PlayLoop;
+        MatchFlowUIController.EndMusic += PlayClip;
     }
 
     private void OnDisable()
     {
-        MatchFlowUIController.OnReadyStarted -= PlayClip;
-        MatchFlowUIController.OnGoEnded -= PlayLoop;
+        MatchFlowUIController.ReadyMusic -= PlayClip;
+        MatchFlowUIController.ActiveMusic -= PlayLoop;
+        MatchFlowUIController.EndMusic -= PlayClip;
     }
 
     private void PlayClip(AudioClip clip)
@@ -30,8 +32,8 @@ public class MusicManager : MonoBehaviour
         if (!_ac || !clip) return;
 
         _ac.Stop();
-        _ac.PlayOneShot(clip);
         _ac.loop = false;
+        _ac.PlayOneShot(clip);
     }
 
     private void PlayLoop(AudioClip clip)
@@ -39,7 +41,7 @@ public class MusicManager : MonoBehaviour
         if (!_ac || !clip) return;
 
         _ac.Stop();
-        _ac.PlayOneShot(clip);
         _ac.loop = true;
+        _ac.PlayOneShot(clip);
     }
 }
