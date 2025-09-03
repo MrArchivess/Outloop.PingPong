@@ -82,7 +82,7 @@ public class MatchFlowUIController : MonoBehaviour
 
     private void OnReady()
     {
-        OnReadyStarted.Invoke(introClip);
+        OnReadyStarted?.Invoke(introClip);
         StartSequence(
             Show(readyGroup, readyRT),
             Hide(goGroup, goRT),
@@ -109,7 +109,7 @@ public class MatchFlowUIController : MonoBehaviour
     }
     private void OnStarted()
     {
-        OnGoEnded.Invoke(backgroundLoop);
+        OnGoEnded?.Invoke(backgroundLoop);
         StartSequence(
             Hide(readyGroup, readyRT),
             setGroup ? Hide(setGroup, setRT) : null,
