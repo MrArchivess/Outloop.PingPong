@@ -116,6 +116,7 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(.5f);
         OnMatchStarted?.Invoke();
         matchState = new MatchActiveState();
+        StartCoroutine(WaitForServerPaddleThenSetPosition());
 
     }
 

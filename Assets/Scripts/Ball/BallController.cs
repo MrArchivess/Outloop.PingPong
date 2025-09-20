@@ -20,6 +20,7 @@ public class BallController : MonoBehaviour
     public PlayerSide PlayerWhoLastHit => playerWhoLastHit;
     private PlayerSide playerWhoLastHit;
 
+
     public bool RoundOverTriggered => roundOverTriggered;
     private bool roundOverTriggered = false;
 
@@ -33,6 +34,7 @@ public class BallController : MonoBehaviour
 
 
     [SerializeField] private PaddleController[] paddles = new PaddleController[2];
+    private GameObject server;
 
 
     private void Start()
@@ -41,8 +43,17 @@ public class BallController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
+    private void SetServer(GameObject servingObject)
+    {
+        server = servingObject;
+    }
+
     private void FixedUpdate()
     {
+        if (GameManager.Instance != null && GameManager.Instance.GameState is ServingState && GameManager.Instance.MatchState is MatchActiveState && !isServed)
+        {
+            transform.position = server.transform.position;
+        }
         if (rb.velocity.magnitude > maxVelocity)
         {
             rb.velocity = rb.velocity.normalized * maxVelocity;
@@ -130,6 +141,7 @@ public class BallController : MonoBehaviour
         BoundsEventBus.OnRoundOver += SetRoundOverTriggered;
         TableSideBoundsDetector.legalMoveMade += MakeMoveLegal;
         GameManager.OnPlayerConnected += SetPaddles;
+        GameManager.OnServerDetermined += SetServer;
 
     
     }
@@ -141,5 +153,6 @@ public class BallController : MonoBehaviour
         BoundsEventBus.OnRoundOver -= SetRoundOverTriggered;
         TableSideBoundsDetector.legalMoveMade -= MakeMoveLegal;
         GameManager.OnPlayerConnected -= SetPaddles;
+        GameManager.OnServerDetermined += SetServer;
     }
 }
