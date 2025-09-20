@@ -16,6 +16,8 @@ public class PaddleController : MonoBehaviour
     private Vector2 inputDirection = Vector2.zero;
     private Bounds movementBounds;
 
+    private Vector3 originalPosition;
+
     private void Awake()
     {
         baseLocalRot = transform.localRotation;
@@ -77,6 +79,17 @@ public class PaddleController : MonoBehaviour
             ClampPosition();
     }
 
+    public void SetOriginalPosition(Vector3 position)
+    {
+        originalPosition = position;
+        ResetPosition();
+    }
+
+    private void ResetPosition()
+    {
+        transform.position = originalPosition;
+    }
+
     private void ClampPosition()
     {
         Vector3 clamped = transform.position;
@@ -97,4 +110,15 @@ public class PaddleController : MonoBehaviour
         transform.position = clamped;
     }
 
+    private void OnEnable()
+    {
+        GameManager.OnRoundReset += ResetPosition;
+        GameManager.OnMatchGo += ResetPosition;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnRoundReset -= ResetPosition;
+        GameManager.OnMatchGo -= ResetPosition;
+    }
 }

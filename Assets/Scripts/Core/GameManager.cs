@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
     public static event Action<PlayerSide> OnServerChanged;
     public static event Action<GameObject> OnServerDetermined;
     public static event Action<PlayerSide> PointWon;
+    public static event Action OnRoundReset;
     public static event Action OnMatchReset;
     public static event Action OnPlayerConnected;
 
@@ -176,7 +177,7 @@ public class GameManager : MonoBehaviour
         currentServed++;
         if (currentServed == maxServe) SetServer();
         gameState = new ServingState();
-
+        OnRoundReset?.Invoke();
         StartCoroutine(WaitForServerPaddleThenSetPosition());
     }
 
