@@ -24,7 +24,7 @@ public class SimpleHitStrategy : IBallHitStrategy
 
         Vector3 finalDirection = (forward + sideCurve + Vector3.up * upwardLift).normalized;
 
-        ballRb.velocity = Vector3.zero;
+        ballRb.linearVelocity = Vector3.zero;
         ballRb.AddForce(finalDirection * strength, ForceMode.Impulse);
     }
 }

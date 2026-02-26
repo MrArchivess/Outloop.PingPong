@@ -38,10 +38,10 @@ public class PingPongHitFX : MonoBehaviour
     private void PlayHitFX(BallController ball)
     {
         Vector3 dir  = lastDir;
-        if (ball.TryGetComponent<Rigidbody>(out var rb3) && rb3.velocity.sqrMagnitude > 1e-6f)
-            dir = rb3.velocity.normalized;
-        else if (ball.TryGetComponent<Rigidbody2D>(out var rb2) && rb2.velocity.sqrMagnitude > 1e-6f)
-            dir = new Vector3(rb2.velocity.x, 0f, rb2.velocity.y).normalized;
+        if (ball.TryGetComponent<Rigidbody>(out var rb3) && rb3.linearVelocity.sqrMagnitude > 1e-6f)
+            dir = rb3.linearVelocity.normalized;
+        else if (ball.TryGetComponent<Rigidbody2D>(out var rb2) && rb2.linearVelocity.sqrMagnitude > 1e-6f)
+            dir = new Vector3(rb2.linearVelocity.x, 0f, rb2.linearVelocity.y).normalized;
 
         if (orientOpposite) dir = -dir;
         if (dir.sqrMagnitude < 1e-6f) dir = lastDir;

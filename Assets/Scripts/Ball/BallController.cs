@@ -54,9 +54,9 @@ public class BallController : MonoBehaviour
         {
             transform.position = server.transform.position;
         }
-        if (rb.velocity.magnitude > maxVelocity)
+        if (rb.linearVelocity.magnitude > maxVelocity)
         {
-            rb.velocity = rb.velocity.normalized * maxVelocity;
+            rb.linearVelocity = rb.linearVelocity.normalized * maxVelocity;
         }
     }
 
@@ -83,7 +83,7 @@ public class BallController : MonoBehaviour
 
         yield return new WaitForFixedUpdate();
 
-        rb.velocity = Vector3.zero;
+        rb.linearVelocity = Vector3.zero;
         rb.useGravity = false;
         transform.position = position;
         transform.rotation = Quaternion.identity;
