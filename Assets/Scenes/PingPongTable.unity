@@ -1351,10 +1351,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: PingPongTable
       objectReference: {fileID: 0}
-    - target: {fileID: 1873058867641238042, guid: 0359ed46faed84f4ab2e4be3e7bc88c5, type: 3}
-      propertyPath: m_Size.x
-      value: -0.04
-      objectReference: {fileID: 0}
     - target: {fileID: 2999485775425427377, guid: 0359ed46faed84f4ab2e4be3e7bc88c5, type: 3}
       propertyPath: m_LocalPosition.y
       value: -0.4

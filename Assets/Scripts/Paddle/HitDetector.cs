@@ -12,21 +12,21 @@ public class HitDetector : MonoBehaviour
     public static event Action<PlayerSide> OnBallHit;
     public static event Action<AudioClip> OnBallHitSFX;
 
-    // ---------- Input/charge ------------
-    [Header("Charge")]
-    private float chargeTime = 0f;
-    private float chargeDuration = 0f;
-    [SerializeField] private float maxDuration = 1f;
-    [SerializeField] private float maxCharge = 0.5f;
-    private bool isCharging;
+    // ---------- HitPhase -------------
+    private enum HitPhase { Idle, Windup, Active, Recovery }
+    [Header("HitPhase")]
+    [SerializeField] private float windupTime = 0.10f;
+    [SerializeField] private float activeTime = 0.12f;
+    [SerializeField] private float recoveryTime = 0.18f;
+
+    private HitPhase phase = HitPhase.Idle;
+    private float phaseTimer = 0f;
     private Vector2 lastInputDirection;
 
     // ---------- Ball refs ------------
     private GameObject ball;
     private BallController ballCtrl;
     private Rigidbody ballRb;
-
-
 
     // ---------- Visuals/SFX ------------
     [Header("Visuals/SFX")]
@@ -58,6 +58,13 @@ public class HitDetector : MonoBehaviour
     [SerializeField] private float preferForwardDot = 0.6f;
     [SerializeField] private float ballRadius = 0.02f;
     [SerializeField] private float netClearanceExtra = 0.02f;
+
+    // ---------- Hit Proximity ------------------
+    [Header("Hit Proximity")]
+    [SerializeField] private Transform contactAnchor;
+    [SerializeField] private Vector3 proximityOffset = new Vector3(0f, 0f, 0.25f);
+    [SerializeField] private float proximityRadius = 0.22f;
+    [SerializeField] private LayerMask ballLayer;
 
     // ---------- Choose which safe shot you want ------------
     public enum ShotKind { Drive, Drop }
@@ -101,37 +108,25 @@ public class HitDetector : MonoBehaviour
 
     private void Update()
     {
-        if (!isCharging) return;
-
-        chargeTime += Time.deltaTime;
-        chargeDuration += Time.deltaTime;
-
-        float normalizedDuration = Mathf.Clamp01(chargeDuration / maxDuration);
-
-        Color finalGlow = glowColor * Mathf.Lerp(maxEmission, 0f, normalizedDuration);
-
-        if (glowRenderer != null)
+        if (phase != HitPhase.Idle)
         {
-            foreach (Renderer renderer in glowRenderer)
+            phaseTimer += Time.deltaTime;
+
+            switch (phase)
             {
-                Material[] materials = renderer.materials;
-                foreach (Material mat in materials)
-                {
-                    mat.SetColor("_EmissionColor", finalGlow);
-                }
+                case HitPhase.Windup:
+                    HandleGlow();
+                    if (phaseTimer >= windupTime) { phase = HitPhase.Active; phaseTimer = 0;}
+                    break;
+                case HitPhase.Active:
+                    if (IsBallInProximity()) { MakeHit();}
+                    else if (phaseTimer >= activeTime) { phase = HitPhase.Recovery; phaseTimer = 0f; }
+                    break;
+                case HitPhase.Recovery:
+                    if (phaseTimer >= recoveryTime) { phase = HitPhase.Idle; ClearGlow(); }
+                    break;
             }
         }
-
-        if (chargeTime > maxCharge) chargeTime = maxCharge;
-
-        if (chargeDuration > maxDuration)
-        {
-            isCharging = false;
-            ClearGlow();
-            chargeTime = 0;
-            chargeDuration = 0;
-        }
-
     }
 
     public void HandleHitButton()
@@ -154,13 +149,18 @@ public class HitDetector : MonoBehaviour
                     break;
 
                 case PlayingState:
-                    chargeTime = 0f;
-                    chargeDuration = 0f;
-                    isCharging = !isCharging;
+                    StartHitWindow();
                     break;
 
             }
         }
+    }
+
+    private void StartHitWindow()
+    {
+        if (phase != HitPhase.Idle) return;
+        phase = HitPhase.Windup;
+        phaseTimer = 0f;
     }
 
     public void SetDirection(Vector2 direction) => lastInputDirection = direction;
@@ -170,24 +170,53 @@ public class HitDetector : MonoBehaviour
     {
         EnsureStrategyReady();
 
-        isCharging = false;
-        float normalizedCharge = Mathf.Clamp01(chargeTime / maxCharge);
+        float timing01 = Mathf.Clamp01(phaseTimer / activeTime);
+        float quality = 1f - Mathf.Abs(timing01 - 0.5f) * 2f;
         float inputDirectionX = lastInputDirection.x;
 
-        hitStrategy.ApplyHit(ballRb, transform, normalizedCharge, inputDirectionX);
+        hitStrategy.ApplyHit(ballRb, transform, quality, inputDirectionX);
 
         ClearGlow();
         if (!ballRb.useGravity) ballRb.useGravity = true;
 
-        chargeTime = 0f;
+        phase = HitPhase.Recovery;
+        phaseTimer = 0f;
+
         OnBallHit?.Invoke(playerSide);
         OnBallHitSFX?.Invoke(hitClip);
     }
 
-    private void OnTriggerEnter(Collider other)
+    private bool IsBallInProximity()
     {
-        if (other.CompareTag("Ball") && isCharging)
-            MakeHit();
+        if (ballRb == null) return false;
+
+        Vector3 origin = contactAnchor ? contactAnchor.position : transform.position;
+        origin += (contactAnchor ? contactAnchor.TransformDirection(proximityOffset) : transform.TransformDirection(proximityOffset));
+
+        float r = proximityRadius;
+        Collider[] hits = Physics.OverlapSphere(origin, r, ballLayer, QueryTriggerInteraction.Ignore);
+        for (int i = 0; i < hits.Length; i++)
+            if (hits[i].CompareTag("Ball")) return true;
+
+        return false;
+        
+    }
+
+    private void HandleGlow()
+    {
+        float t = Mathf.Clamp01(phaseTimer / windupTime);
+        Color finalGlow = glowColor * Mathf.Lerp(0f, maxEmission, t);
+        if (glowRenderer != null)
+        {
+            foreach (Renderer renderer in glowRenderer)
+            {
+                Material[] materials = renderer.materials;
+                foreach (Material mat in materials)
+                {
+                    mat.SetColor("_EmissionColor", finalGlow);
+                }
+            }
+        }
     }
 
     private void ClearGlow()
