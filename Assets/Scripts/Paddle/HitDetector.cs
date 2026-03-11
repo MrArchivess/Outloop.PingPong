@@ -66,6 +66,16 @@ public class HitDetector : MonoBehaviour
     [SerializeField] private float proximityRadius = 1f;
     [SerializeField] private LayerMask ballLayer; 
 
+
+    [Header("Shot Input Buffer")]
+    [SerializeField] private float comboBufferTime = 0.12f;
+
+    private ShotSlot pendingShotSlot = ShotSlot.None;
+    private FaceButton firstButton = FaceButton.None;
+    private FaceButton secondButton = FaceButton.None;
+    private float comboBufferTimer = 0f;
+    private bool comboBufferOpen = false;
+
     // ---------- Choose which safe shot you want ------------
     public enum ShotKind { Drive, Drop }
     [Header("Shot Type")]
@@ -88,7 +98,6 @@ public class HitDetector : MonoBehaviour
     {
         hitClip = hitSFX;
     }
-
 
     public void SetGlowRenderers(Renderer[] glowRenderer)
     {
@@ -129,6 +138,14 @@ public class HitDetector : MonoBehaviour
                     break;
             }
         }
+        if (comboBufferOpen)
+        {
+            comboBufferTimer += Time.deltaTime;
+            if (comboBufferTimer >= comboBufferTime || phase != HitPhase.Windup)
+            {
+                comboBufferOpen = false;
+            }
+        }
     }
 
     public void HandleHitButton()
@@ -158,6 +175,92 @@ public class HitDetector : MonoBehaviour
         }
     }
 
+    public void HandleFaceButton(FaceButton button)
+    {
+        if (GameManager.Instance.MatchState is not MatchActiveState)
+            return;
+
+        switch (GameManager.Instance.GameState)
+        {
+            case ServingState:
+                if (GameManager.Instance.CurrentServer != playerSide)
+                    return;
+
+                if (!ballCtrl.IsServed)
+                    OnServeStarted?.Invoke();
+                else
+                {
+                    MakeHit();
+                    OnServeCompleted?.Invoke();
+                }
+                break;
+
+            case PlayingState:
+                HandleShotInput(button);
+                break;
+
+        }
+    }
+
+    private ShotSlot ToSingleSlot(FaceButton button)
+    {
+        return button switch
+        {
+            FaceButton.A => ShotSlot.A,
+            FaceButton.B => ShotSlot.B,
+            FaceButton.X => ShotSlot.X,
+            FaceButton.Y => ShotSlot.Y,
+            _ => ShotSlot.None
+        };
+    }
+
+    private ShotSlot ToComboSlot(FaceButton a, FaceButton b)
+    {
+        if (a == b) return ToSingleSlot(a);
+
+        // Normalize order so A+B == B+A
+        if ((int)a > (int)b)
+            (a, b) = (b, a);
+
+        if (a == FaceButton.A && b == FaceButton.B) return ShotSlot.AB;
+        if (a == FaceButton.A && b == FaceButton.X) return ShotSlot.AX;
+        if (a == FaceButton.A && b == FaceButton.Y) return ShotSlot.AY;
+        if (a == FaceButton.B && b == FaceButton.X) return ShotSlot.BX;
+        if (a == FaceButton.B && b == FaceButton.Y) return ShotSlot.BY;
+        if (a == FaceButton.X && b == FaceButton.Y) return ShotSlot.XY;
+
+        return ShotSlot.None;
+    }
+
+    private void HandleShotInput(FaceButton button)
+    {
+        if (phase == HitPhase.Idle)
+        {
+            firstButton = button;
+            secondButton = FaceButton.None;
+            pendingShotSlot = ToSingleSlot(button);
+
+            comboBufferOpen = true;
+            comboBufferTimer = 0f;
+
+            Debug.Log($"[HitDetector] Selected initial shot slot: {pendingShotSlot}");
+            StartHitWindow();
+            return;
+        }
+
+        if (phase == HitPhase.Windup && comboBufferOpen)
+        {
+            if (button == firstButton) return;
+            if (button == FaceButton.None) return;
+
+            secondButton = button;
+            pendingShotSlot = ToComboSlot(firstButton, secondButton);
+            Debug.Log($"[HitDetector] Updated combo shot slot: {pendingShotSlot}");
+        }
+    }
+
+
+
     private void StartHitWindow()
     {
         if (phase != HitPhase.Idle) return;
@@ -186,6 +289,13 @@ public class HitDetector : MonoBehaviour
 
         OnBallHit?.Invoke(playerSide);
         OnBallHitSFX?.Invoke(hitClip);
+
+        Debug.Log($"[HitDetector] Executing shot slot: {pendingShotSlot}");
+        pendingShotSlot = ShotSlot.None;
+        firstButton = FaceButton.None;
+        secondButton = FaceButton.None;
+        comboBufferOpen = false;
+        comboBufferTimer = 0f;
     }
 
     private bool IsBallInProximity()
@@ -350,4 +460,29 @@ public class HitDetector : MonoBehaviour
 
 }
 
+// ---------- Shot Slots ---------------------
+
+public enum FaceButton
+{
+    None,
+    A,
+    B,
+    X,
+    Y
+}
+
+public enum ShotSlot
+{
+    None,
+    A,
+    B,
+    X,
+    Y,
+    AB,
+    AX,
+    AY,
+    BX,
+    BY,
+    XY
+}
 

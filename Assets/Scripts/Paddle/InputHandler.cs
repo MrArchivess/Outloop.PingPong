@@ -39,12 +39,26 @@ public class InputHandler : MonoBehaviour
             moveCommand.Execute(Vector2.zero);
             hitDetector.SetDirection(Vector2.zero);
         };
+        
 
-        playerInput.actions["Hit"].performed += ctx =>
+        playerInput.actions["FaceSouth"].performed += ctx =>
         {
-            hitDetector.HandleHitButton();
+            hitDetector.HandleFaceButton(FaceButton.A);
+        };
+
+        playerInput.actions["FaceEast"].performed += ctx =>
+        {
+            hitDetector.HandleFaceButton(FaceButton.B);
+        };
+
+        playerInput.actions["FaceWest"].performed += ctx =>
+        {
+            hitDetector.HandleFaceButton(FaceButton.X);
+        };
+
+        playerInput.actions["FaceNorth"].performed += ctx =>
+        {
+            hitDetector.HandleFaceButton(FaceButton.Y);
         };
     }
-
-
 }

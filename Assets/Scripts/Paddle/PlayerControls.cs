@@ -102,10 +102,37 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""Hit"",
+                    ""name"": ""FaceSouth"",
                     ""type"": ""Button"",
-                    ""id"": ""a8a7aeac-82d4-459b-a180-d088feba5460"",
-                    ""expectedControlType"": ""Button"",
+                    ""id"": ""42dd3930-342f-4c1f-be8b-af45748a7c5d"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""FaceEast"",
+                    ""type"": ""Button"",
+                    ""id"": ""69b84f4c-887a-4e6b-9281-164cf7a4e7cf"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""FaceWest"",
+                    ""type"": ""Button"",
+                    ""id"": ""f6571ec9-f22d-4acd-8b30-54b889f7b40c"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""FaceNorth"",
+                    ""type"": ""Button"",
+                    ""id"": ""bf2f1a58-c011-4a23-bb4f-460875f8549f"",
+                    ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
@@ -125,12 +152,45 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""186a6ceb-b1fc-43a0-b861-4d6ad08725d8"",
+                    ""id"": ""30e14c50-ff7a-4f23-8de5-822cfb84d6a5"",
                     ""path"": ""<Gamepad>/buttonSouth"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": ""GamepadScheme"",
-                    ""action"": ""Hit"",
+                    ""groups"": "";GamepadScheme"",
+                    ""action"": ""FaceSouth"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""f7431485-ea4e-46f9-8786-cadd22b8b7f1"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";GamepadScheme"",
+                    ""action"": ""FaceEast"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b3a790a1-2f5b-4df3-a956-5f7acbd63993"",
+                    ""path"": ""<Gamepad>/buttonWest"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";GamepadScheme"",
+                    ""action"": ""FaceWest"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a6345a3a-c1e8-4311-a101-22b80ee16529"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": "";GamepadScheme"",
+                    ""action"": ""FaceNorth"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -159,7 +219,10 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         // Player
         m_Player = asset.FindActionMap("Player", throwIfNotFound: true);
         m_Player_Move = m_Player.FindAction("Move", throwIfNotFound: true);
-        m_Player_Hit = m_Player.FindAction("Hit", throwIfNotFound: true);
+        m_Player_FaceSouth = m_Player.FindAction("FaceSouth", throwIfNotFound: true);
+        m_Player_FaceEast = m_Player.FindAction("FaceEast", throwIfNotFound: true);
+        m_Player_FaceWest = m_Player.FindAction("FaceWest", throwIfNotFound: true);
+        m_Player_FaceNorth = m_Player.FindAction("FaceNorth", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
@@ -241,7 +304,10 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Player;
     private List<IPlayerActions> m_PlayerActionsCallbackInterfaces = new List<IPlayerActions>();
     private readonly InputAction m_Player_Move;
-    private readonly InputAction m_Player_Hit;
+    private readonly InputAction m_Player_FaceSouth;
+    private readonly InputAction m_Player_FaceEast;
+    private readonly InputAction m_Player_FaceWest;
+    private readonly InputAction m_Player_FaceNorth;
     /// <summary>
     /// Provides access to input actions defined in input action map "Player".
     /// </summary>
@@ -258,9 +324,21 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// </summary>
         public InputAction @Move => m_Wrapper.m_Player_Move;
         /// <summary>
-        /// Provides access to the underlying input action "Player/Hit".
+        /// Provides access to the underlying input action "Player/FaceSouth".
         /// </summary>
-        public InputAction @Hit => m_Wrapper.m_Player_Hit;
+        public InputAction @FaceSouth => m_Wrapper.m_Player_FaceSouth;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/FaceEast".
+        /// </summary>
+        public InputAction @FaceEast => m_Wrapper.m_Player_FaceEast;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/FaceWest".
+        /// </summary>
+        public InputAction @FaceWest => m_Wrapper.m_Player_FaceWest;
+        /// <summary>
+        /// Provides access to the underlying input action "Player/FaceNorth".
+        /// </summary>
+        public InputAction @FaceNorth => m_Wrapper.m_Player_FaceNorth;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -290,9 +368,18 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Move.started += instance.OnMove;
             @Move.performed += instance.OnMove;
             @Move.canceled += instance.OnMove;
-            @Hit.started += instance.OnHit;
-            @Hit.performed += instance.OnHit;
-            @Hit.canceled += instance.OnHit;
+            @FaceSouth.started += instance.OnFaceSouth;
+            @FaceSouth.performed += instance.OnFaceSouth;
+            @FaceSouth.canceled += instance.OnFaceSouth;
+            @FaceEast.started += instance.OnFaceEast;
+            @FaceEast.performed += instance.OnFaceEast;
+            @FaceEast.canceled += instance.OnFaceEast;
+            @FaceWest.started += instance.OnFaceWest;
+            @FaceWest.performed += instance.OnFaceWest;
+            @FaceWest.canceled += instance.OnFaceWest;
+            @FaceNorth.started += instance.OnFaceNorth;
+            @FaceNorth.performed += instance.OnFaceNorth;
+            @FaceNorth.canceled += instance.OnFaceNorth;
         }
 
         /// <summary>
@@ -307,9 +394,18 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Move.started -= instance.OnMove;
             @Move.performed -= instance.OnMove;
             @Move.canceled -= instance.OnMove;
-            @Hit.started -= instance.OnHit;
-            @Hit.performed -= instance.OnHit;
-            @Hit.canceled -= instance.OnHit;
+            @FaceSouth.started -= instance.OnFaceSouth;
+            @FaceSouth.performed -= instance.OnFaceSouth;
+            @FaceSouth.canceled -= instance.OnFaceSouth;
+            @FaceEast.started -= instance.OnFaceEast;
+            @FaceEast.performed -= instance.OnFaceEast;
+            @FaceEast.canceled -= instance.OnFaceEast;
+            @FaceWest.started -= instance.OnFaceWest;
+            @FaceWest.performed -= instance.OnFaceWest;
+            @FaceWest.canceled -= instance.OnFaceWest;
+            @FaceNorth.started -= instance.OnFaceNorth;
+            @FaceNorth.performed -= instance.OnFaceNorth;
+            @FaceNorth.canceled -= instance.OnFaceNorth;
         }
 
         /// <summary>
@@ -371,11 +467,32 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnMove(InputAction.CallbackContext context);
         /// <summary>
-        /// Method invoked when associated input action "Hit" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// Method invoked when associated input action "FaceSouth" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>
         /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnHit(InputAction.CallbackContext context);
+        void OnFaceSouth(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "FaceEast" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnFaceEast(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "FaceWest" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnFaceWest(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "FaceNorth" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnFaceNorth(InputAction.CallbackContext context);
     }
 }

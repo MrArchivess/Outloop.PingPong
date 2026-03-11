@@ -1,4 +1,5 @@
 {
+    "version": 1,
     "name": "PlayerControls",
     "maps": [
         {
@@ -15,10 +16,37 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Hit",
+                    "name": "FaceSouth",
                     "type": "Button",
-                    "id": "a8a7aeac-82d4-459b-a180-d088feba5460",
-                    "expectedControlType": "Button",
+                    "id": "42dd3930-342f-4c1f-be8b-af45748a7c5d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "FaceEast",
+                    "type": "Button",
+                    "id": "69b84f4c-887a-4e6b-9281-164cf7a4e7cf",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "FaceWest",
+                    "type": "Button",
+                    "id": "f6571ec9-f22d-4acd-8b30-54b889f7b40c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "FaceNorth",
+                    "type": "Button",
+                    "id": "bf2f1a58-c011-4a23-bb4f-460875f8549f",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -38,12 +66,45 @@
                 },
                 {
                     "name": "",
-                    "id": "186a6ceb-b1fc-43a0-b861-4d6ad08725d8",
+                    "id": "30e14c50-ff7a-4f23-8de5-822cfb84d6a5",
                     "path": "<Gamepad>/buttonSouth",
                     "interactions": "",
                     "processors": "",
-                    "groups": "GamepadScheme",
-                    "action": "Hit",
+                    "groups": ";GamepadScheme",
+                    "action": "FaceSouth",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f7431485-ea4e-46f9-8786-cadd22b8b7f1",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";GamepadScheme",
+                    "action": "FaceEast",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b3a790a1-2f5b-4df3-a956-5f7acbd63993",
+                    "path": "<Gamepad>/buttonWest",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";GamepadScheme",
+                    "action": "FaceWest",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a6345a3a-c1e8-4311-a101-22b80ee16529",
+                    "path": "<Gamepad>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";GamepadScheme",
+                    "action": "FaceNorth",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
