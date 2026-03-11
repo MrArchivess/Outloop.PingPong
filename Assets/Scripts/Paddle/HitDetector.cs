@@ -63,8 +63,8 @@ public class HitDetector : MonoBehaviour
     [Header("Hit Proximity")]
     [SerializeField] private Transform contactAnchor;
     [SerializeField] private Vector3 proximityOffset = new Vector3(0f, 0f, 0.25f);
-    [SerializeField] private float proximityRadius = 0.22f;
-    [SerializeField] private LayerMask ballLayer;
+    [SerializeField] private float proximityRadius = 1f;
+    [SerializeField] private LayerMask ballLayer; 
 
     // ---------- Choose which safe shot you want ------------
     public enum ShotKind { Drive, Drop }
@@ -102,6 +102,8 @@ public class HitDetector : MonoBehaviour
         ballRb = ball.GetComponent<Rigidbody>();
         ballCtrl = ball.GetComponent<BallController>();
         netProvider = FindFirstObjectByType<NetMetricsProvider>();
+
+        ballLayer = LayerMask.GetMask("Ball");
 
         rng ??= new System.Random();
     }
@@ -334,6 +336,16 @@ public class HitDetector : MonoBehaviour
                 hitStrategy = new TopspinDriveStrategy(tableSpec, tune, rng);
                 break;
         }
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        Vector3 origin = contactAnchor ? contactAnchor.position : transform.position;
+        origin += (contactAnchor ? contactAnchor.TransformDirection (proximityOffset)
+                                : transform.TransformDirection(proximityOffset));
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(origin, proximityRadius);
     }
 
 }
