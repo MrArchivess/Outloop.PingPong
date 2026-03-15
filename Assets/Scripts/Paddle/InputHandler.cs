@@ -12,6 +12,7 @@ public class InputHandler : MonoBehaviour
 
     private ICommand moveCommand;
 
+    private bool inputsSet = false;
 
     private void Awake()
     {
@@ -27,7 +28,11 @@ public class InputHandler : MonoBehaviour
 
     public void SetInputs()
     {
+        if (inputsSet) return;
+        inputsSet = true;
+
         hitDetector = gameObject.GetComponentInChildren<HitDetector>();
+        
         playerInput.actions["Move"].performed += ctx =>
         {
             Vector2 dir = ctx.ReadValue<Vector2>();
@@ -39,7 +44,6 @@ public class InputHandler : MonoBehaviour
             moveCommand.Execute(Vector2.zero);
             hitDetector.SetDirection(Vector2.zero);
         };
-        
 
         playerInput.actions["FaceSouth"].performed += ctx =>
         {

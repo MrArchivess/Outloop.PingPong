@@ -8,6 +8,7 @@ public class TableSideBoundsDetector : MonoBehaviour
     [SerializeField] private PlayerSide tableSide;
 
     public static event Action legalMoveMade;
+    public static event Action<PlayerSide> legalMoveMadeOnSide;
 
     private void Awake()
     {
@@ -22,7 +23,11 @@ public class TableSideBoundsDetector : MonoBehaviour
             BallController ball = col.gameObject.GetComponent<BallController>();
 
             if (ball.PlayerWhoLastHit != tableSide && !ball.IsMoveLegal)
+            {
                 legalMoveMade?.Invoke();
+                legalMoveMadeOnSide?.Invoke(tableSide);
+
+            }
             else if (!ball.RoundOverTriggered)
             {
                 BoundsEventBus.RaiseBallOutofBounds(ball.PlayerWhoLastHit, ball.IsMoveLegal);

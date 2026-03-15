@@ -64,7 +64,15 @@ public class HitDetector : MonoBehaviour
     [SerializeField] private Transform contactAnchor;
     [SerializeField] private Vector3 proximityOffset = new Vector3(0f, 0f, 0.25f);
     [SerializeField] private float proximityRadius = 1f;
-    [SerializeField] private LayerMask ballLayer; 
+    [SerializeField] private LayerMask ballLayer;
+
+    [Header("Grace Return")]
+    [SerializeField] private float graceWindowTime = 0.35f;
+    [SerializeField] private float lungeRadius = 1.5f;
+    [SerializeField] private Vector3 lungeOffset = new Vector3(0f, 0f, 0.5f);
+
+    private bool graceWindowActive = false;
+    private float graceTimer = 0f;
 
 
     [Header("Shot Input Buffer")]
@@ -127,10 +135,12 @@ public class HitDetector : MonoBehaviour
             {
                 case HitPhase.Windup:
                     HandleGlow();
-                    if (phaseTimer >= windupTime) { phase = HitPhase.Active; phaseTimer = 0;}
+                    if (phaseTimer >= windupTime) { phase = HitPhase.Active; phaseTimer = 0; }
                     break;
                 case HitPhase.Active:
-                    if (IsBallInProximity()) { MakeHit();}
+                    bool canNormalHit = IsBallInProximity();
+                    bool canGraceHit = graceWindowActive && IsBallInLungeProximity();
+                    if (canNormalHit || canGraceHit) { MakeHit(); }
                     else if (phaseTimer >= activeTime) { phase = HitPhase.Recovery; phaseTimer = 0f; }
                     break;
                 case HitPhase.Recovery:
@@ -138,12 +148,23 @@ public class HitDetector : MonoBehaviour
                     break;
             }
         }
+
         if (comboBufferOpen)
         {
             comboBufferTimer += Time.deltaTime;
             if (comboBufferTimer >= comboBufferTime || phase != HitPhase.Windup)
             {
                 comboBufferOpen = false;
+            }
+        }
+
+        if (graceWindowActive)
+        {
+            graceTimer += Time.deltaTime;
+            if (graceTimer >= graceWindowTime)
+            {
+                graceWindowActive = false;
+                graceTimer = 0f;
             }
         }
     }
@@ -202,6 +223,18 @@ public class HitDetector : MonoBehaviour
         }
     }
 
+    public void NotifyFirstBounceOnOwnSide()
+    {
+        graceWindowActive = true;
+        graceTimer = 0f;
+    }
+
+    public void NotifyBounceOnOtherSideOrSecondBounce()
+    {
+        graceWindowActive = false;
+        graceTimer = 0f;
+    }
+
     private ShotSlot ToSingleSlot(FaceButton button)
     {
         return button switch
@@ -243,7 +276,7 @@ public class HitDetector : MonoBehaviour
             comboBufferOpen = true;
             comboBufferTimer = 0f;
 
-            Debug.Log($"[HitDetector] Selected initial shot slot: {pendingShotSlot}");
+            //Debug.Log($"[HitDetector] Selected initial shot slot: {pendingShotSlot}");
             StartHitWindow();
             return;
         }
@@ -252,14 +285,13 @@ public class HitDetector : MonoBehaviour
         {
             if (button == firstButton) return;
             if (button == FaceButton.None) return;
+            if (secondButton != FaceButton.None) return;
 
             secondButton = button;
             pendingShotSlot = ToComboSlot(firstButton, secondButton);
-            Debug.Log($"[HitDetector] Updated combo shot slot: {pendingShotSlot}");
+            //Debug.Log($"[HitDetector] Updated combo shot slot: {pendingShotSlot}");
         }
     }
-
-
 
     private void StartHitWindow()
     {
@@ -269,7 +301,7 @@ public class HitDetector : MonoBehaviour
     }
 
     public void SetDirection(Vector2 direction) => lastInputDirection = direction;
-    
+
 
     private void MakeHit()
     {
@@ -311,7 +343,21 @@ public class HitDetector : MonoBehaviour
             if (hits[i].CompareTag("Ball")) return true;
 
         return false;
-        
+    }
+
+    private bool IsBallInLungeProximity()
+    {
+        if (ballRb == null) return false;
+
+        Vector3 origin = contactAnchor ? contactAnchor.position : transform.position;
+        origin += (contactAnchor ? contactAnchor.TransformDirection(lungeOffset)
+                                : transform.TransformDirection(lungeOffset));
+
+        Collider[] hits = Physics.OverlapSphere(origin, lungeRadius, ballLayer, QueryTriggerInteraction.Ignore);
+        for (int i = 0; i < hits.Length; i++)
+            if (hits[i].CompareTag("Ball")) return true;
+
+        return false;
     }
 
     private void HandleGlow()
@@ -359,7 +405,7 @@ public class HitDetector : MonoBehaviour
         GameObject rightObj = GameObject.FindGameObjectWithTag("Table_Right");
         if (leftObj == null || rightObj == null)
         {
-            Debug.LogWarning("[HitDetector] Could not find Table_Left / Table_Right by tag. Cannot auto-configure bounds.");
+            //Debug.LogWarning("[HitDetector] Could not find Table_Left / Table_Right by tag. Cannot auto-configure bounds.");
             return false;
         }
 
@@ -367,7 +413,7 @@ public class HitDetector : MonoBehaviour
         var rightCol = rightObj.GetComponent<Collider>();
         if (leftCol == null || rightCol == null)
         {
-            Debug.LogWarning("[HitDetector] Table_Left / Table_Right missing Collider. Cannot auto-configure bounds.");
+            //Debug.LogWarning("[HitDetector] Table_Left / Table_Right missing Collider. Cannot auto-configure bounds.");
             return false;
         }
 
@@ -401,7 +447,7 @@ public class HitDetector : MonoBehaviour
         Bounds netBounds = new Bounds();
         if (netProvider == null || !netProvider.TryGetMetrics(out netZ, out netTopY, out netBounds))
         {
-            Debug.LogWarning("[HitDetector] NetMetricsProvider missing or invalid. Falling back to oppHalf center Z and +0.15m height.");
+            //Debug.LogWarning("[HitDetector] NetMetricsProvider missing or invalid. Falling back to oppHalf center Z and +0.15m height.");
             netZ = oppHalf.center.z;   // crude fallback
             netTopY = tableY + 0.15f;
         }
@@ -448,16 +494,39 @@ public class HitDetector : MonoBehaviour
         }
     }
 
+    private void OnLegalBounceMade(PlayerSide bouncedSide)
+    {
+        if (bouncedSide != playerSide) return;
+
+        graceWindowActive = true;
+        graceTimer = 0;
+    }
+
     private void OnDrawGizmosSelected()
     {
         Vector3 origin = contactAnchor ? contactAnchor.position : transform.position;
-        origin += (contactAnchor ? contactAnchor.TransformDirection (proximityOffset)
+        origin += (contactAnchor ? contactAnchor.TransformDirection(proximityOffset)
                                 : transform.TransformDirection(proximityOffset));
 
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(origin, proximityRadius);
+
+        Vector3 lungeOrigin = contactAnchor ? contactAnchor.position : transform.position;
+        lungeOrigin += (contactAnchor ? contactAnchor.TransformDirection(lungeOffset)
+                                     : transform.TransformDirection(lungeOffset));
+
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(lungeOrigin, lungeRadius);
+    }
+    private void OnEnable()
+    {
+        TableSideBoundsDetector.legalMoveMadeOnSide += OnLegalBounceMade;
     }
 
+    private void OnDisable()
+    {
+        TableSideBoundsDetector.legalMoveMadeOnSide -= OnLegalBounceMade;
+    }
 }
 
 // ---------- Shot Slots ---------------------
