@@ -140,7 +140,8 @@ public class HitDetector : MonoBehaviour
                 case HitPhase.Active:
                     bool canNormalHit = IsBallInProximity();
                     bool canGraceHit = graceWindowActive && IsBallInLungeProximity();
-                    if (canNormalHit || canGraceHit) { MakeHit(); }
+                    if (canNormalHit) { MakeHit(); }
+                    else if (canGraceHit) { MakeHit(); }
                     else if (phaseTimer >= activeTime) { phase = HitPhase.Recovery; phaseTimer = 0f; }
                     break;
                 case HitPhase.Recovery:
