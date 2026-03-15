@@ -15,6 +15,7 @@ public class HitDetector : MonoBehaviour
     // ---------- HitPhase -------------
     private enum HitPhase { Idle, Windup, Active, Recovery }
     [Header("HitPhase")]
+    [SerializeField] private bool useAnimationEvents = false;
     [SerializeField] private float windupTime = 0.10f;
     [SerializeField] private float activeTime = 0.12f;
     [SerializeField] private float recoveryTime = 0.18f;
@@ -22,6 +23,11 @@ public class HitDetector : MonoBehaviour
     private HitPhase phase = HitPhase.Idle;
     private float phaseTimer = 0f;
     private Vector2 lastInputDirection;
+
+    [SerializeField] private Animator animator;
+    [SerializeField] private string swingTriggerName = "Swing";
+
+    private int swingTriggerHash;
 
     // ---------- Ball refs ------------
     private GameObject ball;
@@ -102,6 +108,11 @@ public class HitDetector : MonoBehaviour
         BuildSpecAndStrategy();
     }
 
+    public void SetAnimator(Animator anim)
+    {
+        animator = anim;
+    }
+
     public void SetHitClip(AudioClip hitSFX)
     {
         hitClip = hitSFX;
@@ -121,8 +132,12 @@ public class HitDetector : MonoBehaviour
         netProvider = FindFirstObjectByType<NetMetricsProvider>();
 
         ballLayer = LayerMask.GetMask("Ball");
-
         rng ??= new System.Random();
+
+        if (animator == null)
+            animator = GetComponentInChildren<Animator>() ?? GetComponentInParent<Animator>();
+
+        swingTriggerHash = Animator.StringToHash(swingTriggerName);
     }
 
     private void Update()
@@ -135,17 +150,17 @@ public class HitDetector : MonoBehaviour
             {
                 case HitPhase.Windup:
                     HandleGlow();
-                    if (phaseTimer >= windupTime) { phase = HitPhase.Active; phaseTimer = 0; }
+                    if (!useAnimationEvents && phaseTimer >= windupTime) { phase = HitPhase.Active; phaseTimer = 0; }
                     break;
                 case HitPhase.Active:
                     bool canNormalHit = IsBallInProximity();
                     bool canGraceHit = graceWindowActive && IsBallInLungeProximity();
                     if (canNormalHit) { MakeHit(); }
                     else if (canGraceHit) { MakeHit(); }
-                    else if (phaseTimer >= activeTime) { phase = HitPhase.Recovery; phaseTimer = 0f; }
+                    else if (!useAnimationEvents && phaseTimer >= activeTime) { phase = HitPhase.Recovery; phaseTimer = 0f; }
                     break;
                 case HitPhase.Recovery:
-                    if (phaseTimer >= recoveryTime) { phase = HitPhase.Idle; ClearGlow(); }
+                    if (!useAnimationEvents && phaseTimer >= recoveryTime) { phase = HitPhase.Idle; ClearGlow(); phaseTimer = 0f; }
                     break;
             }
         }
@@ -168,6 +183,31 @@ public class HitDetector : MonoBehaviour
                 graceTimer = 0f;
             }
         }
+    }
+
+    public void Animation_BeginActiveWindow()
+    {
+        if (phase != HitPhase.Windup) return;
+
+        phase = HitPhase.Active;
+        phaseTimer = 0f;
+    }
+
+    public void Animation_EndActiveWindow()
+    {
+        if (phase != HitPhase.Active) return;
+        
+        phase = HitPhase.Recovery;
+        phaseTimer = 0f;
+    }
+
+    public void Animation_EndRecovery()
+    {
+        if (phase != HitPhase.Recovery) return;
+
+        phase = HitPhase.Idle;
+        phaseTimer = 0f;
+        ClearGlow();
     }
 
     public void HandleHitButton()
@@ -299,6 +339,9 @@ public class HitDetector : MonoBehaviour
         if (phase != HitPhase.Idle) return;
         phase = HitPhase.Windup;
         phaseTimer = 0f;
+
+        if (animator != null)
+            animator.SetTrigger(swingTriggerHash);
     }
 
     public void SetDirection(Vector2 direction) => lastInputDirection = direction;

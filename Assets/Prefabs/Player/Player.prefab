@@ -24,14 +24,14 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 468935358322281281}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0.014479275, w: 0.9998952}
-  m_LocalPosition: {x: -0.0086, y: 0.0131, z: 0.024}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0.00028350865, y: 0.016459022, z: -0.011734283, w: 0.9997957}
+  m_LocalPosition: {x: 0.2550105, y: 1.1538304, z: 0.07660417}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5543100338325842025}
   - {fileID: 7251135830023327096}
-  m_Father: {fileID: 4824623895934705188}
+  m_Father: {fileID: 4060430991320350097}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -1.659}
 --- !u!1 &5279823200264787883
 GameObject:
@@ -58,7 +58,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5279823200264787883}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 1.0493053e-11, y: 0.000000007450581, z: -1.947145e-10, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -120,7 +120,6 @@ Transform:
   m_LocalScale: {x: 1.991775, y: 1.991775, z: 1.991775}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 7008340159106817450}
   - {fileID: 4060430991320350097}
   - {fileID: 7638274957179342389}
   m_Father: {fileID: 0}
@@ -167,6 +166,7 @@ MonoBehaviour:
   moveSpeed: 10
   tableCollider: {fileID: 0}
   hitClip: {fileID: 8300000, guid: 84cffb812faa6b94b9b356cb8664789e, type: 3}
+  visualAnimator: {fileID: 0}
   playerSide: 0
 --- !u!114 &5838564671337458639
 MonoBehaviour:
@@ -196,11 +196,11 @@ MonoBehaviour:
   - m_PersistentCalls:
       m_Calls: []
     m_ActionId: 3292bc9c-d241-4ad2-9594-e44e3e3dcae2
-    m_ActionName: Player/Move[/DualShock4GamepadHID/leftStick,/XInputControllerWindows/leftStick]
+    m_ActionName: 'Player/Move[/DualShock4GamepadHID/leftStick,/XInputControllerWindows/leftStick]'
   - m_PersistentCalls:
       m_Calls: []
     m_ActionId: a8a7aeac-82d4-459b-a180-d088feba5460
-    m_ActionName: Player/Hit[/DualShock4GamepadHID/buttonSouth,/XInputControllerWindows/buttonSouth]
+    m_ActionName: 'Player/Hit[/DualShock4GamepadHID/buttonSouth,/XInputControllerWindows/buttonSouth]'
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 0}
@@ -216,7 +216,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: 9feeb7a1-3ef0-4daa-a1d1-76f64c0e38cd
-    m_ActionName: Player/Join[/XInputControllerWindows/buttonSouth,/SwitchProControllerHID/buttonSouth,/XInputControllerWindows1/buttonSouth,/XInputControllerWindows2/buttonSouth]
+    m_ActionName: 'Player/Join[/XInputControllerWindows/buttonSouth,/SwitchProControllerHID/buttonSouth,/XInputControllerWindows1/buttonSouth,/XInputControllerWindows2/buttonSouth]'
   m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: GamepadScheme
   m_DefaultActionMap: Player
@@ -309,6 +309,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -393,6 +396,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -915,6 +921,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0.91400146
       objectReference: {fileID: 0}
+    - target: {fileID: 7869543608362826461, guid: 9bd72731ebe2248478ba4849c274a43b, type: 3}
+      propertyPath: m_Avatar
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 7869543608362826461, guid: 9bd72731ebe2248478ba4849c274a43b, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 9c97e69c2ef8e7e408439f59f06559d4, type: 2}
     - target: {fileID: 8068530203388336920, guid: 9bd72731ebe2248478ba4849c274a43b, type: 3}
       propertyPath: m_LocalRotation.w
       value: 0.49450424
@@ -1065,7 +1079,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 4311652260893728935, guid: 9bd72731ebe2248478ba4849c274a43b, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7008340159106817450}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 5190437239892832003, guid: 9bd72731ebe2248478ba4849c274a43b, type: 3}
       insertIndex: -1

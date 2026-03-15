@@ -7,6 +7,7 @@ public class PaddleController : MonoBehaviour
     [SerializeField] private float moveSpeed = 10f;
     [SerializeField] private BoxCollider tableCollider;
     [SerializeField] private AudioClip hitClip;
+    [SerializeField] private Animator visualAnimator;
 
     public PlayerSide Playerside => playerSide;
     [SerializeField] private PlayerSide playerSide;
@@ -45,6 +46,8 @@ public class PaddleController : MonoBehaviour
         HitDetector detector = FindHitDetector().AddComponent<HitDetector>();
         detector.Initialize(playerSide);
         detector.SetHitClip(hitClip);
+        visualAnimator = GetComponentInChildren<Animator>();
+        detector.SetAnimator(visualAnimator);
 
         Renderer[] glowTarget = GetComponentsInChildren<Renderer>();
         detector.SetGlowRenderers(glowTarget);
