@@ -23,4 +23,9 @@ public sealed class TopspinDriveStrategy : BaseSafeHitStrategy
             * Mathf.Deg2Rad;
         return v0;
     }
+
+    protected override void ApplyShotVisuals(Rigidbody ballRb)
+    {
+        SetTrailColor(ballRb, Color.white);
+    }
 }

@@ -17,6 +17,8 @@ public abstract class BaseSafeHitStrategy : IBallHitStrategy
         Planner = new SafeHitStrategy(table, baseTune, Rng);
     }
 
+    protected virtual void ApplyShotVisuals(Rigidbody ballRb) { }
+
     // Final to guarantee invariants are always applied
     public void ApplyHit(Rigidbody ballRb, Transform paddleTransform, float charge, float inputDir)
     {
@@ -42,6 +44,8 @@ public abstract class BaseSafeHitStrategy : IBallHitStrategy
 
         // Give subclasses a chance to add spin/curve/etc.
         v0 = PostProcessVelocity(v0, ballRb, paddleTransform, charge, inputDir);
+
+        ApplyShotVisuals(ballRb);
 
         // Apply impulse relative to current velocity for continuity
         var deltaV = v0 - ballRb.linearVelocity;
@@ -79,7 +83,7 @@ public abstract class BaseSafeHitStrategy : IBallHitStrategy
     protected virtual void OnShotApplied(Rigidbody rb, Vector3 v0, Vector3 landing) { }
 
     // ---- Core solver wrapper (safety invariant) ----
-    private bool TrySolveSafe(
+    protected virtual bool TrySolveSafe(
         Vector3 p0, Vector3 fwd, Vector3 target,
         SafeHitStrategy.ShotTuning tune, float inputDir, out Vector3 v0)
     {
@@ -111,6 +115,28 @@ public abstract class BaseSafeHitStrategy : IBallHitStrategy
         if (Planner.TryLob(p0, tune, fwd, out v0, out _)) return true;
 
         return false;
+    }
+
+    protected void SetTrailColor(Rigidbody ballRb, Color color)
+    {
+        TrailRenderer trail = ballRb.GetComponent<TrailRenderer>();
+        if (trail == null) return;
+
+        Gradient gradient = new Gradient();
+        gradient.SetKeys(
+            new GradientColorKey[]
+            {
+                new GradientColorKey(color, 0f),
+                new GradientColorKey(color, 1f)
+            },
+            new GradientAlphaKey[]
+            {
+                new GradientAlphaKey(1f, 0f),
+                new GradientAlphaKey(1f, 1f)
+            }
+        );
+
+        trail.colorGradient = gradient;
     }
 
     private bool SafeSolve(Vector3 p0, Vector3 fwd, Vector3 pt, SafeHitStrategy.ShotTuning tune, out Vector3 v0) =>

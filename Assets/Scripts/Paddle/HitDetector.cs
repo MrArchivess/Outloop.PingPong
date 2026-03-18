@@ -196,7 +196,7 @@ public class HitDetector : MonoBehaviour
     public void Animation_EndActiveWindow()
     {
         if (phase != HitPhase.Active) return;
-        
+
         phase = HitPhase.Recovery;
         phaseTimer = 0f;
     }
@@ -217,16 +217,20 @@ public class HitDetector : MonoBehaviour
             switch (GameManager.Instance.GameState)
             {
                 case ServingState:
-                    if (GameManager.Instance.CurrentServer == playerSide)
+                    if (GameManager.Instance.CurrentServer != playerSide) return;
+
+                    pendingShotSlot = ShotSlot.A;
+                    firstButton = FaceButton.A;
+                    secondButton = FaceButton.None;
+                    
+                    if (!ballCtrl.IsServed)
+                        OnServeStarted?.Invoke();
+                    else
                     {
-                        if (!ballCtrl.IsServed)
-                            OnServeStarted?.Invoke();
-                        else
-                        {
-                            MakeHit();
-                            OnServeCompleted?.Invoke();
-                        }
+                        MakeHit();
+                        OnServeCompleted?.Invoke();
                     }
+
                     break;
 
                 case PlayingState:
@@ -346,6 +350,51 @@ public class HitDetector : MonoBehaviour
 
     public void SetDirection(Vector2 direction) => lastInputDirection = direction;
 
+    private IBallHitStrategy ResolveStrategyForSlot(ShotSlot slot)
+    {
+        rng ??= new System.Random();
+
+        return slot switch
+        {
+            ShotSlot.A => new TopspinDriveStrategy(tableSpec, tune, rng),
+            ShotSlot.B => new QuickShotStrategy(tableSpec, tune, rng),
+
+            ShotSlot.X => new DefensiveLobStrategy(tableSpec, tune, rng),
+            ShotSlot.Y => new PowerDriveStrategy(tableSpec, tune, rng),
+
+            ShotSlot.AB => new TopspinDriveStrategy(tableSpec, tune, rng),
+            ShotSlot.AX => new TopspinDriveStrategy(tableSpec, tune, rng),
+            ShotSlot.AY => new TopspinDriveStrategy(tableSpec, tune, rng),
+            ShotSlot.BX => new SoftDropShotStrategy(tableSpec, tune, rng),
+            ShotSlot.BY => new SoftDropShotStrategy(tableSpec, tune, rng),
+            ShotSlot.XY => new TopspinDriveStrategy(tableSpec, tune, rng),
+
+            _ => new TopspinDriveStrategy(tableSpec, tune, rng),
+        };
+    }
+
+    private ShotSlot GetResolvedShotSlot()
+    {
+        return pendingShotSlot == ShotSlot.None ? ShotSlot.A : pendingShotSlot;
+    }
+
+    private void ResetShotState()
+    {
+        hitStrategy = ResolveStrategyForSlot(ShotSlot.A);
+
+        pendingShotSlot = ShotSlot.None;
+        firstButton = FaceButton.None;
+        secondButton = FaceButton.None;
+        comboBufferOpen = false;
+        comboBufferTimer = 0f;
+
+        graceWindowActive = false;
+        graceTimer = 0f;
+
+        phase = HitPhase.Idle;
+        phaseTimer = 0f;
+        ClearGlow();
+    }
 
     private void MakeHit()
     {
@@ -355,6 +404,8 @@ public class HitDetector : MonoBehaviour
         float quality = 1f - Mathf.Abs(timing01 - 0.5f) * 2f;
         float inputDirectionX = lastInputDirection.x;
 
+        ShotSlot resolvedSlot = GetResolvedShotSlot();
+        hitStrategy = ResolveStrategyForSlot(resolvedSlot);
         hitStrategy.ApplyHit(ballRb, transform, quality, inputDirectionX);
 
         ClearGlow();
@@ -565,11 +616,13 @@ public class HitDetector : MonoBehaviour
     private void OnEnable()
     {
         TableSideBoundsDetector.legalMoveMadeOnSide += OnLegalBounceMade;
+        GameManager.OnRoundReset += ResetShotState;
     }
 
     private void OnDisable()
     {
         TableSideBoundsDetector.legalMoveMadeOnSide -= OnLegalBounceMade;
+        GameManager.OnRoundReset -= ResetShotState;
     }
 }
 
